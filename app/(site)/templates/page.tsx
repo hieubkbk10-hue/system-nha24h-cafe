@@ -1,0 +1,57 @@
+import type { Metadata } from 'next';
+import { getConvexClient } from '@/lib/convex';
+import { api } from '@/convex/_generated/api';
+import { getSEOSettings, getSiteSettings, getContactSettings } from '@/lib/get-settings';
+import { buildHubMetadata } from '@/lib/seo/metadata';
+import InternalLinkCluster from '@/components/seo/InternalLinkCluster';
+import { getHubInternalLinks } from '@/lib/seo/internal-links';
+import { JsonLd, generateItemListSchema } from '@/components/seo/JsonLd';
+
+export const revalidate = 1800;
+
+export async function generateMetadata(): Promise<Metadata> {
+  const [site, seo, contact] = await Promise.all([getSiteSettings(), getSEOSettings(), getContactSettings()]);
+  return buildHubMetadata({
+    contact,
+    description: 'Template mẫu cho mọi trường hợp sử dụng',
+    pathname: '/templates',
+    seo,
+    site,
+    title: 'Templates',
+  });
+}
+
+export default async function TemplatesPage() {
+  const result = await getConvexClient().query(api.landingPages.listPublishedByType, { landingType: 'template', paginationOpts: { cursor: null, numItems: 50 } });
+  const site = await getSiteSettings();
+  const baseUrl = (site.site_url || process.env.NEXT_PUBLIC_SITE_URL) ?? '';
+  const itemListSchema = generateItemListSchema({
+    items: result.page.map((item) => ({
+      name: item.title,
+      url: `${baseUrl}/templates/${item.slug}`,
+    })),
+    name: 'Templates',
+    url: `${baseUrl}/templates`,
+  });
+  return (
+    <>
+      {result.page.length > 0 && <JsonLd data={itemListSchema} />}
+      <div className="container mx-auto px-4 py-12">
+        <h1 className="text-4xl font-bold mb-4">Templates</h1>
+        <p className="text-xl text-slate-600 mb-12">Template mẫu cho mọi trường hợp sử dụng</p>
+        {result.page.length === 0 ? <p className="text-slate-500">Chưa có dữ liệu.</p> : (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {result.page.map((item) => (
+              <a key={item._id} href={`${baseUrl}/templates/${item.slug}`} className="block border rounded-lg p-6 hover:border-primary transition-colors">
+                {item.heroImage && <img src={item.heroImage} alt={item.title} className="w-full h-40 object-cover rounded mb-4" />}
+                <h2 className="text-xl font-semibold mb-2">{item.title}</h2>
+                <p className="text-slate-600 text-sm line-clamp-3">{item.summary}</p>
+              </a>
+            ))}
+          </div>
+        )}
+        <InternalLinkCluster links={getHubInternalLinks('templates')} />
+      </div>
+    </>
+  );
+}
