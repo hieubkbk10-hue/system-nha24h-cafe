@@ -5,7 +5,7 @@ import Image from 'next/image';
 import { useMutation } from 'convex/react';
 import { api } from '@/convex/_generated/api';
 import type { Id } from '@/convex/_generated/dataModel';
-import { ImageOff, Loader2, Pencil, Upload, X } from 'lucide-react';
+import { ImageOff, Loader2, Upload, X } from 'lucide-react';
 import { toast } from 'sonner';
 import { Button, Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, cn } from './ui';
 import { prepareImageForUpload, type SquareCropSelection, validateImageFile } from '@/lib/image/uploadPipeline';
@@ -157,27 +157,6 @@ export function ImageUpload({ value, onChange, folder = 'products', className, e
     onChange(undefined);
   };
 
-  const handleEditCurrentImage = useCallback(async () => {
-    if (!value || !enableSquareCrop || isUploading) {
-      return;
-    }
-
-    try {
-      const response = await fetch(value);
-      if (!response.ok) {
-        throw new Error('Không thể tải ảnh để chỉnh sửa');
-      }
-      const blob = await response.blob();
-      const mimeType = blob.type || 'image/jpeg';
-      const extension = mimeType === 'image/png' ? 'png' : 'jpg';
-      const file = new File([blob], `products-image.${extension}`, { type: mimeType });
-      openCropper(file);
-    } catch (error) {
-      console.error('Edit image error:', error);
-      toast.error('Không thể mở ảnh để cắt lại');
-    }
-  }, [value, enableSquareCrop, isUploading, openCropper]);
-
   const renderedSize = useMemo(() => {
     if (!sourceDimensions) {
       return null;
@@ -236,25 +215,17 @@ export function ImageUpload({ value, onChange, folder = 'products', className, e
             <ImageOff size={24} />
           </div>
         )}
-        <div className="absolute top-2 right-2 flex gap-2">
-          {enableSquareCrop && (
-            <Button
-              type="button"
-              variant="ghost"
-              size="icon"
-              className="bg-white/90 dark:bg-slate-800/90 hover:bg-white dark:hover:bg-slate-800 shadow-sm"
-              onClick={() => { void handleEditCurrentImage(); }}
-              disabled={isUploading}
-            >
-              <Pencil size={14} className="text-slate-600 dark:text-slate-300" />
-            </Button>
-          )}
+        <div className="absolute top-2 right-2">
           <Button
             type="button"
             variant="ghost"
             size="icon"
             className="bg-white/90 dark:bg-slate-800/90 hover:bg-white dark:hover:bg-slate-800 shadow-sm"
-            onClick={handleRemove}
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              handleRemove();
+            }}
           >
             <X size={16} className="text-red-500" />
           </Button>
