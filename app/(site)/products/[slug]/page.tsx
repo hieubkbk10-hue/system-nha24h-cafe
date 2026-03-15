@@ -1756,7 +1756,7 @@ function MinimalStyle({ product, brandColor, tokens, relatedProducts, enabledFie
             <span className="truncate max-w-[160px]" style={{ color: tokens.breadcrumbActive }}>{product.name}</span>
           </nav>
         </div>
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-10 min-h-[calc(100vh-4rem)]">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-10">
           <div className="lg:col-span-7 lg:py-0">
             <div className="lg:sticky lg:top-8">
               <div className="flex flex-col-reverse md:flex-row gap-3 md:gap-4 items-start">
