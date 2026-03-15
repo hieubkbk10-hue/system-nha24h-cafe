@@ -649,12 +649,6 @@ export function ProductDetailPreview({
                     <span className="text-sm md:text-base line-through" style={{ color: tokens.priceOriginalText }}>
                       {formatVND(originalPrice)}
                     </span>
-                    <span
-                      className="inline-flex items-center rounded-full px-2 py-0.5 text-[11px] font-semibold"
-                      style={{ backgroundColor: tokens.discountBadgeBg, color: tokens.discountBadgeText }}
-                    >
-                      -{discountPercent}%
-                    </span>
                   </div>
                   <div className="mt-4">
                     {showVariants && <VariantPreview tokens={tokens} />}
