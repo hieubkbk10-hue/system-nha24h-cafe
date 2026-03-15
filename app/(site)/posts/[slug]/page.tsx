@@ -479,43 +479,27 @@ function ClassicStyle({ post, brandColor, secondaryColor, relatedPosts, showAuth
         <div className={`grid grid-cols-1 gap-10 ${hasRelatedPosts ? 'lg:grid-cols-12' : ''}`}>
           <article className={`space-y-8 ${hasRelatedPosts ? 'lg:col-span-9' : 'max-w-4xl mx-auto'}`}>
             <header className="space-y-4">
-              <div className="flex items-center gap-2">
+              <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold tracking-tight text-foreground leading-[1.15]" style={{ color: brandColor }}>
+                {post.title}
+              </h1>
+
+              <div className="flex flex-wrap items-center gap-3 text-sm text-muted-foreground pt-2">
                 <span
                   className="inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold"
                   style={{ backgroundColor: `${accentColor}15`, borderColor: `${accentColor}30`, color: accentColor }}
                 >
                   {post.categoryName}
                 </span>
-              </div>
-
-              {visibleTags.length > 0 && (
-                <div className="flex flex-wrap gap-2">
-                  {visibleTags.map((tag) => (
-                    <span
-                      key={tag}
-                      className="inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold"
-                      style={{ borderColor: `${accentColor}20`, color: accentColor }}
-                    >
-                      {tag}
-                    </span>
-                  ))}
-                </div>
-              )}
-
-              <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold tracking-tight text-foreground leading-[1.15]" style={{ color: brandColor }}>
-                {post.title}
-              </h1>
-
-              <div className="flex flex-wrap items-center gap-3 text-sm text-muted-foreground pt-2">
                 {showAuthor && authorName && (
                   <>
+                    <span className="text-muted-foreground/40">•</span>
                     <div className="flex items-center gap-1.5">
                       <User className="h-4 w-4" />
                       <span>{authorName}</span>
                     </div>
-                    <span className="text-muted-foreground/40">•</span>
                   </>
                 )}
+                <span className="text-muted-foreground/40">•</span>
                 <div className="flex items-center gap-1.5">
                   <Calendar className="h-4 w-4" />
                   <span>{post.publishedAt ? new Date(post.publishedAt).toLocaleDateString('vi-VN') : ''}</span>
@@ -531,6 +515,20 @@ function ClassicStyle({ post, brandColor, secondaryColor, relatedPosts, showAuth
                   <span>{post.views.toLocaleString()} lượt xem</span>
                 </div>
               </div>
+
+              {visibleTags.length > 0 && (
+                <div className="flex flex-wrap gap-2">
+                  {visibleTags.map((tag) => (
+                    <span
+                      key={tag}
+                      className="inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold"
+                      style={{ borderColor: `${accentColor}20`, color: accentColor }}
+                    >
+                      {tag}
+                    </span>
+                  ))}
+                </div>
+              )}
             </header>
 
             {showThumbnail && post.thumbnail && !isBroken(post.thumbnail) && (
@@ -555,7 +553,7 @@ function ClassicStyle({ post, brandColor, secondaryColor, relatedPosts, showAuth
             {resolvedContent && (
               <RichContent
                 content={resolvedContent}
-                className="prose-zinc prose-lg max-w-none lg:max-w-[640px]"
+                className="prose-zinc prose-lg max-w-none"
               />
             )}
 
@@ -694,34 +692,17 @@ function ModernStyle({ post, brandColor, secondaryColor, relatedPosts, enabledFi
           </nav>
 
           <section className="max-w-7xl mx-auto w-full space-y-4">
-            <div className="flex items-center justify-center md:justify-start">
+            <h1 className="text-[clamp(1.75rem,4vw,3rem)] font-semibold tracking-tight text-foreground leading-[1.2] text-balance" style={{ color: brandColor }}>
+              {post.title}
+            </h1>
+
+            <div className="flex flex-wrap items-center gap-4 text-sm text-muted-foreground">
               <span
                 className="inline-flex items-center rounded-full border px-3 py-1 text-xs font-medium"
                 style={{ backgroundColor: `${accentColor}10`, borderColor: `${accentColor}25`, color: accentColor }}
               >
                 {post.categoryName}
               </span>
-            </div>
-
-            {visibleTags.length > 0 && (
-              <div className="flex flex-wrap items-center justify-center md:justify-start gap-2">
-                {visibleTags.map((tag) => (
-                  <span
-                    key={tag}
-                    className="inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold"
-                    style={{ borderColor: `${accentColor}20`, color: accentColor }}
-                  >
-                    {tag}
-                  </span>
-                ))}
-              </div>
-            )}
-
-            <h1 className="text-[clamp(1.75rem,4vw,3rem)] font-semibold tracking-tight text-foreground leading-[1.2] text-balance" style={{ color: brandColor }}>
-              {post.title}
-            </h1>
-
-            <div className="flex flex-wrap items-center gap-4 text-sm text-muted-foreground">
               {showAuthor && authorName && (
                 <div className="flex items-center gap-2">
                   <User className="h-4 w-4" />
@@ -741,6 +722,20 @@ function ModernStyle({ post, brandColor, secondaryColor, relatedPosts, enabledFi
                 <span className="font-medium">{post.views.toLocaleString()} lượt xem</span>
               </div>
             </div>
+
+            {visibleTags.length > 0 && (
+              <div className="flex flex-wrap items-center justify-center md:justify-start gap-2">
+                {visibleTags.map((tag) => (
+                  <span
+                    key={tag}
+                    className="inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold"
+                    style={{ borderColor: `${accentColor}20`, color: accentColor }}
+                  >
+                    {tag}
+                  </span>
+                ))}
+              </div>
+            )}
           </section>
         </div>
 
@@ -886,7 +881,7 @@ function MinimalStyle({ post, brandColor, secondaryColor, relatedPosts, showAuth
               />
               <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-black/10 to-transparent" />
               <div className="absolute inset-x-0 top-0 z-10">
-                <div className="container max-w-6xl mx-auto px-4 md:px-6">
+                <div className="container max-w-7xl mx-auto px-4 md:px-6">
                   <div className="flex items-center justify-between pt-4">
                     <Link
                       href="/posts"
@@ -912,29 +907,16 @@ function MinimalStyle({ post, brandColor, secondaryColor, relatedPosts, showAuth
                   </div>
                 </div>
               </div>
-              <div className="container max-w-6xl mx-auto h-full px-4 md:px-6 flex items-end pb-6 md:pb-8">
-                <Card className="w-full max-w-3xl border-border/70 bg-background/90 shadow-sm backdrop-blur-sm">
+              <div className="container max-w-7xl mx-auto h-full px-4 md:px-6 flex items-end pb-6 md:pb-8">
+                <Card className="w-full max-w-7xl border-border/70 bg-background/90 shadow-sm backdrop-blur-sm">
                   <CardContent className="space-y-3 p-4 md:p-6">
-                    <span className="text-xs font-semibold uppercase tracking-[0.2em]" style={{ color: accentColor }}>
-                      {post.categoryName}
-                    </span>
                     <h1 className="text-[clamp(1.6rem,4vw,2.9rem)] font-semibold leading-[1.2] text-foreground" style={{ color: brandColor }}>
                       {post.title}
                     </h1>
-                    {visibleTags.length > 0 && (
-                      <div className="flex flex-wrap gap-2">
-                        {visibleTags.map((tag) => (
-                          <span
-                            key={tag}
-                            className="inline-flex items-center rounded-full border px-2.5 py-0.5 text-[11px] font-semibold"
-                            style={{ borderColor: `${accentColor}20`, color: accentColor }}
-                          >
-                            {tag}
-                          </span>
-                        ))}
-                      </div>
-                    )}
                     <div className="flex flex-wrap items-center gap-4 text-xs text-muted-foreground">
+                      <span className="text-xs font-semibold uppercase tracking-[0.2em]" style={{ color: accentColor }}>
+                        {post.categoryName}
+                      </span>
                       {showAuthor && authorName && (
                         <div className="flex items-center gap-2">
                           <User className="h-4 w-4" />
@@ -954,13 +936,26 @@ function MinimalStyle({ post, brandColor, secondaryColor, relatedPosts, showAuth
                         <span>{post.views.toLocaleString()} lượt xem</span>
                       </div>
                     </div>
+                    {visibleTags.length > 0 && (
+                      <div className="flex flex-wrap gap-2">
+                        {visibleTags.map((tag) => (
+                          <span
+                            key={tag}
+                            className="inline-flex items-center rounded-full border px-2.5 py-0.5 text-[11px] font-semibold"
+                            style={{ borderColor: `${accentColor}20`, color: accentColor }}
+                          >
+                            {tag}
+                          </span>
+                        ))}
+                      </div>
+                    )}
                   </CardContent>
                 </Card>
               </div>
             </div>
           </section>
         ) : (
-          <section className="container max-w-3xl mx-auto px-4 md:px-6 pt-6 md:pt-10 space-y-4">
+          <section className="container max-w-7xl mx-auto px-4 md:px-6 pt-6 md:pt-10 space-y-4">
             <div className="flex items-center justify-between gap-3">
               <Link
                 href="/posts"
@@ -986,26 +981,13 @@ function MinimalStyle({ post, brandColor, secondaryColor, relatedPosts, showAuth
             </div>
             <Card>
               <CardContent className="space-y-3 p-4 md:p-6">
-                <span className="text-xs font-semibold uppercase tracking-[0.2em]" style={{ color: accentColor }}>
-                  {post.categoryName}
-                </span>
                 <h1 className="text-[clamp(1.6rem,4vw,2.9rem)] font-semibold leading-[1.2] text-foreground" style={{ color: brandColor }}>
                   {post.title}
                 </h1>
-                {visibleTags.length > 0 && (
-                  <div className="flex flex-wrap gap-2">
-                    {visibleTags.map((tag) => (
-                      <span
-                        key={tag}
-                        className="inline-flex items-center rounded-full border px-2.5 py-0.5 text-[11px] font-semibold"
-                        style={{ borderColor: `${accentColor}20`, color: accentColor }}
-                      >
-                        {tag}
-                      </span>
-                    ))}
-                  </div>
-                )}
                 <div className="flex flex-wrap items-center gap-4 text-xs text-muted-foreground">
+                  <span className="text-xs font-semibold uppercase tracking-[0.2em]" style={{ color: accentColor }}>
+                    {post.categoryName}
+                  </span>
                   {showAuthor && authorName && (
                     <div className="flex items-center gap-2">
                       <User className="h-4 w-4" />
@@ -1025,12 +1007,25 @@ function MinimalStyle({ post, brandColor, secondaryColor, relatedPosts, showAuth
                     <span>{post.views.toLocaleString()} lượt xem</span>
                   </div>
                 </div>
+                {visibleTags.length > 0 && (
+                  <div className="flex flex-wrap gap-2">
+                    {visibleTags.map((tag) => (
+                      <span
+                        key={tag}
+                        className="inline-flex items-center rounded-full border px-2.5 py-0.5 text-[11px] font-semibold"
+                        style={{ borderColor: `${accentColor}20`, color: accentColor }}
+                      >
+                        {tag}
+                      </span>
+                    ))}
+                  </div>
+                )}
               </CardContent>
             </Card>
           </section>
         )}
 
-        <section className="container max-w-3xl mx-auto px-4 md:px-6 py-8 md:py-12 space-y-6">
+        <section className="container max-w-7xl mx-auto px-4 md:px-6 py-8 md:py-12 space-y-6">
           {post.excerpt && (
             <p className="text-[clamp(1rem,2vw,1.25rem)] text-muted-foreground leading-relaxed">
               {post.excerpt}
@@ -1047,7 +1042,7 @@ function MinimalStyle({ post, brandColor, secondaryColor, relatedPosts, showAuth
         </section>
 
         {relatedPosts.length > 0 && (
-          <section className="container max-w-3xl mx-auto px-4 md:px-6 pb-12">
+          <section className="container max-w-7xl mx-auto px-4 md:px-6 pb-12">
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-lg md:text-xl font-semibold text-foreground">Bài viết liên quan</h2>
               <Link

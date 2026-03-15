@@ -366,13 +366,41 @@ function ClassicStylePreview({
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-10">
           <article className="lg:col-span-9 space-y-8">
             <header className="space-y-4">
-              <div className="flex items-center gap-2">
+              <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold tracking-tight text-foreground leading-[1.15]" style={{ color: brandColor }}>
+                {MOCK_POST.title}
+              </h1>
+
+              <div className="flex flex-wrap items-center gap-3 text-sm text-muted-foreground pt-2">
                 <span
                   className="inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold"
                   style={{ backgroundColor: `${accentColor}15`, borderColor: `${accentColor}30`, color: accentColor }}
                 >
                   {MOCK_POST.categoryName}
                 </span>
+                {showAuthor && (
+                  <>
+                    <span className="text-muted-foreground/40">•</span>
+                    <div className="flex items-center gap-1.5">
+                      <User className="h-4 w-4" />
+                      <span>{MOCK_POST.authorName}</span>
+                    </div>
+                  </>
+                )}
+                <span className="text-muted-foreground/40">•</span>
+                <div className="flex items-center gap-1.5">
+                  <Calendar className="h-4 w-4" />
+                  <span>{new Date(MOCK_POST.publishedAt).toLocaleDateString('vi-VN')}</span>
+                </div>
+                <span className="text-muted-foreground/40">•</span>
+                <div className="flex items-center gap-1.5">
+                  <Clock className="h-4 w-4" />
+                  <span>{readingTime} phút đọc</span>
+                </div>
+                <span className="text-muted-foreground/40">•</span>
+                <div className="flex items-center gap-1.5">
+                  <Eye className="h-4 w-4" />
+                  <span>{MOCK_POST.views.toLocaleString()} lượt xem</span>
+                </div>
               </div>
 
               {visibleTags.length > 0 && (
@@ -386,34 +414,6 @@ function ClassicStylePreview({
                       {tag}
                     </span>
                   ))}
-                </div>
-              )}
-
-              <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold tracking-tight text-foreground leading-[1.15]" style={{ color: brandColor }}>
-                {MOCK_POST.title}
-              </h1>
-
-              {showAuthor && (
-                <div className="flex flex-wrap items-center gap-3 text-sm text-muted-foreground pt-2">
-                  <div className="flex items-center gap-1.5">
-                    <User className="h-4 w-4" />
-                    <span>{MOCK_POST.authorName}</span>
-                  </div>
-                  <span className="text-muted-foreground/40">•</span>
-                  <div className="flex items-center gap-1.5">
-                    <Calendar className="h-4 w-4" />
-                    <span>{new Date(MOCK_POST.publishedAt).toLocaleDateString('vi-VN')}</span>
-                  </div>
-                  <span className="text-muted-foreground/40">•</span>
-                  <div className="flex items-center gap-1.5">
-                    <Clock className="h-4 w-4" />
-                    <span>{readingTime} phút đọc</span>
-                  </div>
-                  <span className="text-muted-foreground/40">•</span>
-                  <div className="flex items-center gap-1.5">
-                    <Eye className="h-4 w-4" />
-                    <span>{MOCK_POST.views.toLocaleString()} lượt xem</span>
-                  </div>
                 </div>
               )}
             </header>
@@ -430,7 +430,7 @@ function ClassicStylePreview({
               </div>
             )}
 
-            <div className="prose prose-zinc prose-lg max-w-none lg:max-w-[640px]">
+            <div className="prose prose-zinc prose-lg max-w-none">
               <div dangerouslySetInnerHTML={{ __html: MOCK_POST.content }} />
             </div>
 
@@ -548,13 +548,35 @@ function ModernStylePreview({ showRelated, showShare, showThumbnail = true, show
           </nav>
 
           <section className="max-w-7xl mx-auto w-full space-y-4">
-            <div className="flex items-center justify-center md:justify-start">
+            <h1 className="text-[clamp(1.75rem,4vw,3rem)] font-semibold tracking-tight text-foreground leading-[1.2] text-balance" style={{ color: brandColor }}>
+              {MOCK_POST.title}
+            </h1>
+
+            <div className="flex flex-wrap items-center gap-4 text-sm text-muted-foreground">
               <span
                 className="inline-flex items-center rounded-full border px-3 py-1 text-xs font-medium"
                 style={{ backgroundColor: `${accentColor}10`, borderColor: `${accentColor}25`, color: accentColor }}
               >
                 {MOCK_POST.categoryName}
               </span>
+              {showAuthor && (
+                <div className="flex items-center gap-2">
+                  <User className="h-4 w-4" />
+                  <span className="font-medium">{MOCK_POST.authorName}</span>
+                </div>
+              )}
+              <div className="flex items-center gap-2">
+                <Calendar className="h-4 w-4" />
+                <time className="font-medium">{new Date(MOCK_POST.publishedAt).toLocaleDateString('vi-VN')}</time>
+              </div>
+              <div className="flex items-center gap-2">
+                <Clock className="h-4 w-4" />
+                <span className="font-medium">{readingTime} phút đọc</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <Eye className="h-4 w-4" />
+                <span className="font-medium">{MOCK_POST.views.toLocaleString()} lượt xem</span>
+              </div>
             </div>
 
             {visibleTags.length > 0 && (
@@ -568,31 +590,6 @@ function ModernStylePreview({ showRelated, showShare, showThumbnail = true, show
                     {tag}
                   </span>
                 ))}
-              </div>
-            )}
-
-            <h1 className="text-[clamp(1.75rem,4vw,3rem)] font-semibold tracking-tight text-foreground leading-[1.2] text-balance" style={{ color: brandColor }}>
-              {MOCK_POST.title}
-            </h1>
-
-            {showAuthor && (
-              <div className="flex flex-wrap items-center gap-4 text-sm text-muted-foreground">
-                <div className="flex items-center gap-2">
-                  <User className="h-4 w-4" />
-                  <span className="font-medium">{MOCK_POST.authorName}</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <Calendar className="h-4 w-4" />
-                  <time className="font-medium">{new Date(MOCK_POST.publishedAt).toLocaleDateString('vi-VN')}</time>
-                </div>
-                <div className="flex items-center gap-2">
-                  <Clock className="h-4 w-4" />
-                  <span className="font-medium">{readingTime} phút đọc</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <Eye className="h-4 w-4" />
-                  <span className="font-medium">{MOCK_POST.views.toLocaleString()} lượt xem</span>
-                </div>
               </div>
             )}
           </section>
@@ -705,7 +702,7 @@ function MinimalStylePreview({ showRelated, showShare, showThumbnail = true, sho
               />
               <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-black/10 to-transparent" />
               <div className="absolute inset-x-0 top-0 z-10">
-                <div className="container max-w-6xl mx-auto px-4 md:px-6">
+                <div className="container max-w-7xl mx-auto px-4 md:px-6">
                   <div className="flex items-center justify-between pt-4">
                     <div className="group inline-flex h-11 items-center gap-2 rounded-md border border-white/30 bg-white/15 px-3 text-sm font-medium text-white backdrop-blur-sm transition-colors hover:bg-white/20">
                       <ArrowLeft className="h-4 w-4 transition-transform duration-200 group-hover:-translate-x-1" />
@@ -724,15 +721,35 @@ function MinimalStylePreview({ showRelated, showShare, showThumbnail = true, sho
                   </div>
                 </div>
               </div>
-              <div className="container max-w-6xl mx-auto h-full px-4 md:px-6 flex items-end pb-6 md:pb-8">
-                <div className="w-full max-w-3xl border-border/70 bg-background/90 shadow-sm backdrop-blur-sm rounded-lg">
+              <div className="container max-w-7xl mx-auto h-full px-4 md:px-6 flex items-end pb-6 md:pb-8">
+                <div className="w-full max-w-7xl border-border/70 bg-background/90 shadow-sm backdrop-blur-sm rounded-lg">
                   <div className="space-y-3 p-4 md:p-6">
-                    <span className="text-xs font-semibold uppercase tracking-[0.2em]" style={{ color: accentColor }}>
-                      {MOCK_POST.categoryName}
-                    </span>
                     <h1 className="text-[clamp(1.6rem,4vw,2.9rem)] font-semibold leading-[1.2] text-foreground" style={{ color: brandColor }}>
                       {MOCK_POST.title}
                     </h1>
+                    <div className="flex flex-wrap items-center gap-4 text-xs text-muted-foreground">
+                      <span className="text-xs font-semibold uppercase tracking-[0.2em]" style={{ color: accentColor }}>
+                        {MOCK_POST.categoryName}
+                      </span>
+                      {showAuthor && (
+                        <div className="flex items-center gap-2">
+                          <User className="h-3.5 w-3.5" />
+                          <span>{MOCK_POST.authorName}</span>
+                        </div>
+                      )}
+                      <div className="flex items-center gap-2">
+                        <Calendar className="h-4 w-4" />
+                        <time>{new Date(MOCK_POST.publishedAt).toLocaleDateString('vi-VN')}</time>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <Clock className="h-4 w-4" />
+                        <span>{readingTime} phút đọc</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <Eye className="h-4 w-4" />
+                        <span>{MOCK_POST.views.toLocaleString()} lượt xem</span>
+                      </div>
+                    </div>
                     {visibleTags.length > 0 && (
                       <div className="flex flex-wrap gap-2">
                         {visibleTags.map((tag) => (
@@ -746,33 +763,13 @@ function MinimalStylePreview({ showRelated, showShare, showThumbnail = true, sho
                         ))}
                       </div>
                     )}
-                    {showAuthor && (
-                      <div className="flex flex-wrap items-center gap-4 text-xs text-muted-foreground">
-                        <div className="flex items-center gap-2">
-                          <User className="h-3.5 w-3.5" />
-                          <span>{MOCK_POST.authorName}</span>
-                        </div>
-                        <div className="flex items-center gap-2">
-                          <Calendar className="h-4 w-4" />
-                          <time>{new Date(MOCK_POST.publishedAt).toLocaleDateString('vi-VN')}</time>
-                        </div>
-                        <div className="flex items-center gap-2">
-                          <Clock className="h-4 w-4" />
-                          <span>{readingTime} phút đọc</span>
-                        </div>
-                        <div className="flex items-center gap-2">
-                          <Eye className="h-4 w-4" />
-                          <span>{MOCK_POST.views.toLocaleString()} lượt xem</span>
-                        </div>
-                      </div>
-                    )}
                   </div>
                 </div>
               </div>
             </div>
           </section>
         ) : (
-          <section className="container max-w-3xl mx-auto px-4 md:px-6 pt-6 md:pt-10">
+          <section className="container max-w-7xl mx-auto px-4 md:px-6 pt-6 md:pt-10">
             <div className="space-y-3">
               <div className="flex items-center justify-between gap-3">
                 <div className="group inline-flex h-11 items-center gap-2 rounded-md border px-3 text-sm font-medium transition-colors hover:bg-muted/60">
@@ -789,12 +786,32 @@ function MinimalStylePreview({ showRelated, showShare, showThumbnail = true, sho
                   </button>
                 )}
               </div>
-              <span className="text-xs font-semibold uppercase tracking-[0.2em]" style={{ color: accentColor }}>
-                {MOCK_POST.categoryName}
-              </span>
               <h1 className="text-[clamp(1.6rem,4vw,2.9rem)] font-semibold leading-[1.2] text-foreground" style={{ color: brandColor }}>
                 {MOCK_POST.title}
               </h1>
+              <div className="flex flex-wrap items-center gap-4 text-xs text-muted-foreground">
+                <span className="text-xs font-semibold uppercase tracking-[0.2em]" style={{ color: accentColor }}>
+                  {MOCK_POST.categoryName}
+                </span>
+                {showAuthor && (
+                  <div className="flex items-center gap-2">
+                    <User className="h-3.5 w-3.5" />
+                    <span>{MOCK_POST.authorName}</span>
+                  </div>
+                )}
+                <div className="flex items-center gap-2">
+                  <Calendar className="h-4 w-4" />
+                  <time>{new Date(MOCK_POST.publishedAt).toLocaleDateString('vi-VN')}</time>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Clock className="h-4 w-4" />
+                  <span>{readingTime} phút đọc</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Eye className="h-4 w-4" />
+                  <span>{MOCK_POST.views.toLocaleString()} lượt xem</span>
+                </div>
+              </div>
               {visibleTags.length > 0 && (
                 <div className="flex flex-wrap gap-2">
                   {visibleTags.map((tag) => (
@@ -808,31 +825,11 @@ function MinimalStylePreview({ showRelated, showShare, showThumbnail = true, sho
                   ))}
                 </div>
               )}
-              {showAuthor && (
-                <div className="flex flex-wrap items-center gap-4 text-xs text-muted-foreground">
-                  <div className="flex items-center gap-2">
-                    <User className="h-3.5 w-3.5" />
-                    <span>{MOCK_POST.authorName}</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <Calendar className="h-4 w-4" />
-                    <time>{new Date(MOCK_POST.publishedAt).toLocaleDateString('vi-VN')}</time>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <Clock className="h-4 w-4" />
-                    <span>{readingTime} phút đọc</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <Eye className="h-4 w-4" />
-                    <span>{MOCK_POST.views.toLocaleString()} lượt xem</span>
-                  </div>
-                </div>
-              )}
             </div>
           </section>
         )}
 
-        <section className="container max-w-3xl mx-auto px-4 md:px-6 py-8 md:py-12 space-y-6">
+        <section className="container max-w-7xl mx-auto px-4 md:px-6 py-8 md:py-12 space-y-6">
           {MOCK_POST.excerpt && (
             <p className="text-[clamp(1rem,2vw,1.25rem)] text-muted-foreground leading-relaxed">
               {MOCK_POST.excerpt}
@@ -846,7 +843,7 @@ function MinimalStylePreview({ showRelated, showShare, showThumbnail = true, sho
         </section>
 
         {showRelated && MOCK_RELATED.length > 0 && (
-          <section className="container max-w-3xl mx-auto px-4 md:px-6 pb-12">
+          <section className="container max-w-7xl mx-auto px-4 md:px-6 pb-12">
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-lg md:text-xl font-semibold text-foreground">Bài viết liên quan</h2>
               <div

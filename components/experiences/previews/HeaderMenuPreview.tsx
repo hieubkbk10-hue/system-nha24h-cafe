@@ -7,11 +7,13 @@ import { Card, CardContent, cn } from '@/app/admin/components/ui';
 import { getMenuColors, type MenuColorMode, type MenuColors } from '@/components/site/header/colors';
 
 export type HeaderLayoutStyle = 'classic' | 'topbar' | 'allbirds';
+export type LogoBackgroundStyle = 'none' | 'shadow' | 'soft' | 'solid';
 
 export type HeaderMenuConfig = {
   brandName: string;
   showBrandName: boolean;
   logoSizeLevel: 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12 | 13 | 14 | 15 | 16 | 17 | 18 | 19 | 20;
+  logoBackgroundStyle?: LogoBackgroundStyle;
   headerBackground: 'white' | 'dots' | 'stripes';
   headerSeparator: 'none' | 'shadow' | 'border' | 'gradient';
   headerSticky: boolean;
@@ -108,6 +110,53 @@ export function HeaderMenuPreview({
   };
   const logoSize = logoSizeMap[layoutStyle][logoSizeLevel - 1] ?? logoSizeMap[layoutStyle][0];
   const logoDotSize = Math.max(2, Math.round(logoSize / 4));
+  const logoBackgroundStyle: LogoBackgroundStyle =
+    config.logoBackgroundStyle === 'shadow'
+    || config.logoBackgroundStyle === 'soft'
+    || config.logoBackgroundStyle === 'solid'
+      ? config.logoBackgroundStyle
+      : 'none';
+  const logoContainerSize = Math.round(logoSize + Math.max(10, logoSize * 0.28));
+  const logoBackgroundStyles: Record<LogoBackgroundStyle, React.CSSProperties> = {
+    none: {},
+    shadow: {
+      backgroundColor: 'rgba(255, 255, 255, 0.88)',
+      boxShadow: '0 10px 30px rgba(15, 23, 42, 0.16)',
+      border: '1px solid rgba(148, 163, 184, 0.2)',
+      backdropFilter: 'blur(10px)',
+    },
+    soft: {
+      backgroundColor: tokens.surfaceAlt,
+      border: `1px solid ${tokens.border}`,
+      boxShadow: 'inset 0 1px 0 rgba(255, 255, 255, 0.7)',
+    },
+    solid: {
+      backgroundColor: tokens.textPrimary,
+      border: `1px solid ${tokens.textPrimary}`,
+      boxShadow: '0 12px 28px rgba(15, 23, 42, 0.18)',
+    },
+  };
+  const logoWrapStyle: React.CSSProperties = {
+    width: logoBackgroundStyle === 'none' ? logoSize : logoContainerSize,
+    height: logoBackgroundStyle === 'none' ? logoSize : logoContainerSize,
+    borderRadius: layoutStyle === 'allbirds' ? logoContainerSize : Math.max(16, Math.round(logoContainerSize * 0.24)),
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    flexShrink: 0,
+    ...logoBackgroundStyles[logoBackgroundStyle],
+  };
+  const logoInnerStyle: React.CSSProperties = {
+    width: logoSize,
+    height: logoSize,
+    borderRadius: layoutStyle === 'allbirds' ? logoSize : Math.max(8, Math.round(logoSize * 0.24)),
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    overflow: 'hidden',
+    backgroundColor: tokens.brandBadgeBg,
+    color: tokens.brandBadgeText,
+  };
   const ctaLabel = config.cta.text || 'Liên hệ';
   const loginLabel = config.login.text || 'Đăng nhập';
   const defaultLinks = useMemo(() => ({
@@ -447,10 +496,9 @@ export function HeaderMenuPreview({
       <div className="px-6 py-4 border-b" style={{ borderColor: tokens.border }}>
         <div ref={headerRowRef} className="flex items-center gap-4">
           <div ref={brandBlockRef} className="flex items-center gap-3 flex-shrink-0">
-            <div
-              className="rounded-lg"
-              style={{ backgroundColor: tokens.brandBadgeBg, width: logoSize, height: logoSize }}
-            ></div>
+            <div style={logoWrapStyle}>
+              <div style={logoInnerStyle}></div>
+            </div>
             {showBrandName && (
               <span className="font-semibold" style={{ color: tokens.textPrimary }}>{brandLabel}</span>
             )}
@@ -781,11 +829,10 @@ export function HeaderMenuPreview({
       <div className="px-4 py-3 border-b" style={{ borderColor: tokens.border }}>
         <div className="flex items-center justify-between gap-4">
           <div className="flex items-center gap-2 flex-shrink-0">
-            <div
-              className="rounded-lg flex items-center justify-center font-bold"
-              style={{ backgroundColor: tokens.brandBadgeBg, color: tokens.brandBadgeText, width: logoSize, height: logoSize }}
-            >
-              {brandLabel.charAt(0)}
+            <div style={logoWrapStyle}>
+              <div style={logoInnerStyle} className="font-bold">
+                {brandLabel.charAt(0)}
+              </div>
             </div>
             {showBrandName && (
               <span className="font-bold text-lg" style={{ color: tokens.textPrimary }}>{brandLabel}</span>
@@ -1025,10 +1072,12 @@ export function HeaderMenuPreview({
         {device !== 'mobile' ? (
           <div className="flex items-center justify-between gap-6">
             <div className="flex items-center gap-2">
-              <div
-                className="rounded-full"
-                style={{ backgroundColor: tokens.allbirdsAccentDot, width: logoDotSize, height: logoDotSize }}
-              ></div>
+              <div style={logoWrapStyle}>
+                <div
+                  className="rounded-full"
+                  style={{ backgroundColor: tokens.allbirdsAccentDot, width: logoDotSize, height: logoDotSize }}
+                ></div>
+              </div>
               {showBrandName && (
                 <span className="text-base font-semibold" style={{ color: tokens.textPrimary }}>{brandLabel}</span>
               )}
@@ -1168,10 +1217,12 @@ export function HeaderMenuPreview({
         ) : (
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <div
-                className="rounded-full"
-                style={{ backgroundColor: tokens.allbirdsAccentDot, width: logoDotSize, height: logoDotSize }}
-              ></div>
+              <div style={logoWrapStyle}>
+                <div
+                  className="rounded-full"
+                  style={{ backgroundColor: tokens.allbirdsAccentDot, width: logoDotSize, height: logoDotSize }}
+                ></div>
+              </div>
               {showBrandName && (
                 <span className="text-base font-semibold" style={{ color: tokens.textPrimary }}>{brandLabel}</span>
               )}

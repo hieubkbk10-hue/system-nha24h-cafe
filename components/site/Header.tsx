@@ -50,10 +50,13 @@ interface SearchConfig {
   searchServices?: boolean;
 }
 
+type LogoBackgroundStyle = 'none' | 'shadow' | 'soft' | 'solid';
+
 interface HeaderConfig {
   brandName?: string;
   showBrandName?: boolean;
   logoSizeLevel?: 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12 | 13 | 14 | 15 | 16 | 17 | 18 | 19 | 20;
+  logoBackgroundStyle?: LogoBackgroundStyle;
   headerBackground?: 'white' | 'dots' | 'stripes';
   headerSeparator?: 'none' | 'shadow' | 'border' | 'gradient';
   headerSticky?: boolean;
@@ -70,6 +73,7 @@ const DEFAULT_CONFIG: HeaderConfig = {
   brandName: 'YourBrand',
   showBrandName: true,
   logoSizeLevel: 2,
+  logoBackgroundStyle: 'none',
   headerBackground: 'white',
   headerSeparator: 'none',
   headerSticky: true,
@@ -184,6 +188,13 @@ export function Header() {
   };
   const logoSize = logoSizeMap[headerStyle][logoSizeLevel - 1] ?? logoSizeMap[headerStyle][0];
   const logoDotSize = Math.max(2, Math.round(logoSize / 4));
+  const logoBackgroundStyle: LogoBackgroundStyle =
+    config.logoBackgroundStyle === 'shadow'
+    || config.logoBackgroundStyle === 'soft'
+    || config.logoBackgroundStyle === 'solid'
+      ? config.logoBackgroundStyle
+      : 'none';
+  const logoContainerSize = Math.round(logoSize + Math.max(10, logoSize * 0.28));
 
   const tokens = useMemo<MenuColors>(
     () => getMenuColors(brandColors.primary, brandColors.secondary, brandColors.mode),
@@ -197,6 +208,46 @@ export function Header() {
     '--menu-dropdown-sub-hover-text': tokens.dropdownSubItemHoverText,
     '--menu-icon-hover': tokens.iconButtonHoverText,
   } as React.CSSProperties;
+  const logoBackgroundStyles: Record<LogoBackgroundStyle, React.CSSProperties> = {
+    none: {},
+    shadow: {
+      backgroundColor: 'rgba(255, 255, 255, 0.88)',
+      boxShadow: '0 10px 30px rgba(15, 23, 42, 0.16)',
+      border: '1px solid rgba(148, 163, 184, 0.2)',
+      backdropFilter: 'blur(10px)',
+    },
+    soft: {
+      backgroundColor: tokens.surfaceAlt,
+      border: `1px solid ${tokens.border}`,
+      boxShadow: 'inset 0 1px 0 rgba(255, 255, 255, 0.7)',
+    },
+    solid: {
+      backgroundColor: tokens.textPrimary,
+      border: `1px solid ${tokens.textPrimary}`,
+      boxShadow: '0 12px 28px rgba(15, 23, 42, 0.18)',
+    },
+  };
+  const logoWrapStyle: React.CSSProperties = {
+    width: logoBackgroundStyle === 'none' ? logoSize : logoContainerSize,
+    height: logoBackgroundStyle === 'none' ? logoSize : logoContainerSize,
+    borderRadius: headerStyle === 'allbirds' ? logoContainerSize : Math.max(16, Math.round(logoContainerSize * 0.24)),
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    flexShrink: 0,
+    ...logoBackgroundStyles[logoBackgroundStyle],
+  };
+  const logoInnerStyle: React.CSSProperties = {
+    width: logoSize,
+    height: logoSize,
+    borderRadius: headerStyle === 'allbirds' ? logoSize : Math.max(8, Math.round(logoSize * 0.24)),
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    overflow: 'hidden',
+    backgroundColor: tokens.brandBadgeBg,
+    color: tokens.brandBadgeText,
+  };
   
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
@@ -555,11 +606,15 @@ export function Header() {
           <div ref={headerRowRef} className="flex items-center gap-4">
             {/* Logo */}
             <Link ref={brandBlockRef} href="/" className="flex items-center gap-3 flex-shrink-0">
-              {logo ? (
-                <Image src={logo} alt={displayName} width={logoSize} height={logoSize} className="h-auto w-auto" />
-              ) : (
-                <div className="rounded-lg" style={{ backgroundColor: tokens.brandBadgeBg, width: logoSize, height: logoSize }}></div>
-              )}
+              <div style={logoWrapStyle}>
+                {logo ? (
+                  <div style={logoInnerStyle}>
+                    <Image src={logo} alt={displayName} width={logoSize} height={logoSize} className="h-auto w-auto" />
+                  </div>
+                ) : (
+                  <div style={logoInnerStyle}></div>
+                )}
+              </div>
               {showBrandName && (
                 <span className="font-semibold" style={{ color: tokens.textPrimary }}>{displayName}</span>
               )}
@@ -916,16 +971,17 @@ export function Header() {
           <div className="max-w-7xl mx-auto flex items-center justify-between gap-4">
             {/* Logo */}
             <Link href="/" className="flex items-center gap-2 flex-shrink-0">
-              {logo ? (
-                <Image src={logo} alt={displayName} width={logoSize} height={logoSize} className="h-auto w-auto" />
-              ) : (
-                <div 
-                  className="rounded-lg flex items-center justify-center font-bold" 
-                  style={{ backgroundColor: tokens.brandBadgeBg, color: tokens.brandBadgeText, width: logoSize, height: logoSize }}
-                >
-                  {displayName.charAt(0)}
-                </div>
-              )}
+              <div style={logoWrapStyle}>
+                {logo ? (
+                  <div style={logoInnerStyle}>
+                    <Image src={logo} alt={displayName} width={logoSize} height={logoSize} className="h-auto w-auto" />
+                  </div>
+                ) : (
+                  <div style={logoInnerStyle} className="font-bold">
+                    {displayName.charAt(0)}
+                  </div>
+                )}
+              </div>
               {showBrandName && (
                 <span className="font-bold text-lg" style={{ color: tokens.textPrimary }}>{displayName}</span>
               )}
@@ -1175,11 +1231,15 @@ export function Header() {
         <div className="max-w-7xl mx-auto px-4 lg:px-6 py-4 border-b" style={{ borderColor: tokens.border }}>
           <div className="flex items-center justify-between gap-6">
             <Link href="/" className="flex items-center gap-2">
-              {logo ? (
-                <Image src={logo} alt={displayName} width={logoSize} height={logoSize} className="h-auto w-auto" />
-              ) : (
-                <div className="rounded-full" style={{ backgroundColor: tokens.allbirdsAccentDot, width: logoDotSize, height: logoDotSize }}></div>
-              )}
+              <div style={logoWrapStyle}>
+                {logo ? (
+                  <div style={logoInnerStyle}>
+                    <Image src={logo} alt={displayName} width={logoSize} height={logoSize} className="h-auto w-auto" />
+                  </div>
+                ) : (
+                  <div className="rounded-full" style={{ backgroundColor: tokens.allbirdsAccentDot, width: logoDotSize, height: logoDotSize }}></div>
+                )}
+              </div>
               {showBrandName && (
                 <span className="text-base font-semibold" style={{ color: tokens.textPrimary }}>
                   {displayName}

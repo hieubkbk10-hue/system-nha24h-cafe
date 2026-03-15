@@ -31,6 +31,7 @@ const DEFAULT_CONFIG: HeaderMenuConfig = {
   brandName: 'YourBrand',
   showBrandName: true,
   logoSizeLevel: 2,
+  logoBackgroundStyle: 'none',
   headerBackground: 'white',
   headerSeparator: 'none',
   headerSticky: true,
@@ -226,6 +227,10 @@ export default function HeaderMenuExperiencePage() {
 
   const updateLogoSizeLevel = (value: HeaderMenuConfig['logoSizeLevel']) => {
     setConfig(prev => ({ ...prev, logoSizeLevel: value }));
+  };
+
+  const updateLogoBackgroundStyle = (value: NonNullable<HeaderMenuConfig['logoBackgroundStyle']>) => {
+    setConfig(prev => ({ ...prev, logoBackgroundStyle: value }));
   };
 
   const normalizedConfig = useMemo(() => ({
@@ -450,6 +455,34 @@ export default function HeaderMenuExperiencePage() {
                 ))}
               </select>
               <div className="text-xs font-medium text-slate-600">Đang chọn: {logoSizeLabel}</div>
+            </div>
+            <div className="space-y-2 pt-1">
+              <Label className="text-xs">Nền logo</Label>
+              <div className="grid grid-cols-2 gap-2">
+                {([
+                  { id: 'none', label: 'None' },
+                  { id: 'shadow', label: 'Shadow' },
+                  { id: 'soft', label: 'Soft card' },
+                  { id: 'solid', label: 'Solid contrast' },
+                ] as const).map((option) => (
+                  <button
+                    key={option.id}
+                    type="button"
+                    onClick={() => updateLogoBackgroundStyle(option.id)}
+                    className={cn(
+                      'h-8 rounded-md border text-xs font-medium transition-colors',
+                      (config.logoBackgroundStyle ?? 'none') === option.id
+                        ? 'border-slate-900 bg-slate-900 text-white dark:border-slate-100 dark:bg-slate-100 dark:text-slate-900'
+                        : 'border-slate-200 bg-white text-slate-700 hover:bg-slate-100 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200 dark:hover:bg-slate-800'
+                    )}
+                  >
+                    {option.label}
+                  </button>
+                ))}
+              </div>
+              <p className="text-[11px] leading-5 text-slate-500">
+                Shadow giúp logo nổi trên nền bận; Soft card an toàn cho header sáng; Solid contrast phù hợp logo sáng hoặc quá chìm màu header.
+              </p>
             </div>
             <ToggleRow
               label="CTA"
