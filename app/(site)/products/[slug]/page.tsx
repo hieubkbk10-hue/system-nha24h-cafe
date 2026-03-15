@@ -1075,7 +1075,10 @@ function ClassicStyle({ product, brandColor, tokens, relatedProducts, enabledFie
   const showDescription = enabledFields.has('description');
   const showSku = enabledFields.has('sku');
 
-  const images = product.images?.length ? product.images : (product.image ? [product.image] : []);
+  const images = [
+    ...(product.image ? [product.image] : []),
+    ...((product.images ?? []).filter((img) => img && img !== product.image)),
+  ];
   const basePrice = selectedVariant?.price ?? product.price;
   const salePrice = selectedVariant ? selectedVariant.salePrice : product.salePrice;
   const isRangeFromVariant = Boolean(product.hasVariants && !selectedVariant);
@@ -1359,7 +1362,10 @@ function ModernStyle({ product, brandColor, tokens, relatedProducts, enabledFiel
   const showStock = enabledFields.has('stock');
   const showDescription = enabledFields.has('description');
 
-  const images = product.images?.length ? product.images : (product.image ? [product.image] : []);
+  const images = [
+    ...(product.image ? [product.image] : []),
+    ...((product.images ?? []).filter((img) => img && img !== product.image)),
+  ];
   const basePrice = selectedVariant?.price ?? product.price;
   const salePrice = selectedVariant ? selectedVariant.salePrice : product.salePrice;
   const isRangeFromVariant = Boolean(product.hasVariants && !selectedVariant);
@@ -1708,7 +1714,10 @@ function MinimalStyle({ product, brandColor, tokens, relatedProducts, enabledFie
   const showDescription = enabledFields.has('description');
   const showSku = enabledFields.has('sku');
 
-  const images = product.images?.length ? product.images : (product.image ? [product.image] : []);
+  const images = [
+    ...(product.image ? [product.image] : []),
+    ...((product.images ?? []).filter((img) => img && img !== product.image)),
+  ];
   const basePrice = selectedVariant?.price ?? product.price;
   const salePrice = selectedVariant ? selectedVariant.salePrice : product.salePrice;
   const isRangeFromVariant = Boolean(product.hasVariants && !selectedVariant);
