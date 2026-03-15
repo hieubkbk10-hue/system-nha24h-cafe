@@ -873,18 +873,48 @@ export function Header() {
           <div className="lg:hidden border-t" style={{ borderColor: tokens.border, backgroundColor: tokens.mobileMenuBg }}>
             {menuTree.map((item) => (
               <div key={item._id}>
-                <button
-                  onClick={() => item.children.length > 0 && toggleMobileItem(item._id)}
-                  className="w-full px-6 py-3 text-left flex items-center justify-between text-sm font-medium transition-colors hover:bg-[var(--menu-dropdown-hover-bg)]"
-                  style={{ color: tokens.mobileMenuItemText, ...menuVars }}
-                >
-                  {item.label}
-                  {item.children.length > 0 && (
-                    <ChevronDown size={16} className={cn("transition-transform", expandedMobileItems.includes(item._id) && "rotate-180")} />
-                  )}
-                </button>
+                {item.children.length > 0 ? (
+                  <div className="w-full px-6 py-3 text-left flex items-center justify-between text-sm font-medium transition-colors hover:bg-[var(--menu-dropdown-hover-bg)]">
+                    <Link
+                      href={item.url}
+                      target={item.openInNewTab ? '_blank' : undefined}
+                      rel={item.openInNewTab ? 'noreferrer' : undefined}
+                      onClick={() => { setMobileMenuOpen(false); }}
+                      className="flex-1 transition-colors hover:text-[var(--menu-hover-text)]"
+                      style={{ color: tokens.mobileMenuItemText, ...menuVars }}
+                    >
+                      {item.label}
+                    </Link>
+                    <button
+                      type="button"
+                      aria-label={`Mở menu con ${item.label}`}
+                      aria-expanded={expandedMobileItems.includes(item._id)}
+                      aria-controls={`mobile-menu-${item._id}`}
+                      onClick={(event) => {
+                        event.preventDefault();
+                        event.stopPropagation();
+                        toggleMobileItem(item._id);
+                      }}
+                      className="ml-3 flex items-center justify-center"
+                      style={{ color: tokens.mobileMenuItemText, ...menuVars }}
+                    >
+                      <ChevronDown size={16} className={cn("transition-transform", expandedMobileItems.includes(item._id) && "rotate-180")} />
+                    </button>
+                  </div>
+                ) : (
+                  <Link
+                    href={item.url}
+                    target={item.openInNewTab ? '_blank' : undefined}
+                    rel={item.openInNewTab ? 'noreferrer' : undefined}
+                    onClick={() => { setMobileMenuOpen(false); }}
+                    className="block w-full px-6 py-3 text-left text-sm font-medium transition-colors hover:bg-[var(--menu-dropdown-hover-bg)] hover:text-[var(--menu-hover-text)]"
+                    style={{ color: tokens.mobileMenuItemText, ...menuVars }}
+                  >
+                    {item.label}
+                  </Link>
+                )}
                 {item.children.length > 0 && expandedMobileItems.includes(item._id) && (
-                  <div style={{ backgroundColor: tokens.surface }}>
+                  <div id={`mobile-menu-${item._id}`} style={{ backgroundColor: tokens.surface }}>
                     {item.children.map((child) => (
                       <Link 
                         key={child._id} 
@@ -1136,18 +1166,48 @@ export function Header() {
           <div className="lg:hidden border-t" style={{ borderColor: tokens.border, backgroundColor: tokens.surface }}>
             {menuTree.map((item) => (
               <div key={item._id} className="border-b" style={{ borderColor: tokens.border }}>
-                <button
-                  onClick={() => item.children.length > 0 && toggleMobileItem(item._id)}
-                  className="w-full px-4 py-3 text-left flex items-center justify-between text-sm font-medium"
-                  style={{ color: tokens.mobileMenuItemText }}
-                >
-                  {item.label}
-                  {item.children.length > 0 && (
-                    <ChevronDown size={16} className={cn("transition-transform", expandedMobileItems.includes(item._id) && "rotate-180")} />
-                  )}
-                </button>
+                {item.children.length > 0 ? (
+                  <div className="w-full px-4 py-3 text-left flex items-center justify-between text-sm font-medium">
+                    <Link
+                      href={item.url}
+                      target={item.openInNewTab ? '_blank' : undefined}
+                      rel={item.openInNewTab ? 'noreferrer' : undefined}
+                      onClick={() => { setMobileMenuOpen(false); }}
+                      className="flex-1"
+                      style={{ color: tokens.mobileMenuItemText }}
+                    >
+                      {item.label}
+                    </Link>
+                    <button
+                      type="button"
+                      aria-label={`Mở menu con ${item.label}`}
+                      aria-expanded={expandedMobileItems.includes(item._id)}
+                      aria-controls={`mobile-menu-${item._id}`}
+                      onClick={(event) => {
+                        event.preventDefault();
+                        event.stopPropagation();
+                        toggleMobileItem(item._id);
+                      }}
+                      className="ml-3 flex items-center justify-center"
+                      style={{ color: tokens.mobileMenuItemText }}
+                    >
+                      <ChevronDown size={16} className={cn("transition-transform", expandedMobileItems.includes(item._id) && "rotate-180")} />
+                    </button>
+                  </div>
+                ) : (
+                  <Link
+                    href={item.url}
+                    target={item.openInNewTab ? '_blank' : undefined}
+                    rel={item.openInNewTab ? 'noreferrer' : undefined}
+                    onClick={() => { setMobileMenuOpen(false); }}
+                    className="block w-full px-4 py-3 text-left text-sm font-medium"
+                    style={{ color: tokens.mobileMenuItemText }}
+                  >
+                    {item.label}
+                  </Link>
+                )}
                 {item.children.length > 0 && expandedMobileItems.includes(item._id) && (
-                  <div className="pb-2" style={{ backgroundColor: tokens.mobileMenuBg }}>
+                  <div id={`mobile-menu-${item._id}`} className="pb-2" style={{ backgroundColor: tokens.mobileMenuBg }}>
                     {item.children.map((child) => (
                       <Link 
                         key={child._id} 
@@ -1430,18 +1490,48 @@ export function Header() {
           <div className="lg:hidden border-t" style={{ borderColor: tokens.border, backgroundColor: tokens.mobileMenuBg }}>
             {menuTree.map((item) => (
               <div key={item._id}>
-                <button
-                  onClick={() => item.children.length > 0 && toggleMobileItem(item._id)}
-                  className="w-full px-6 py-3 text-left flex items-center justify-between text-sm font-medium transition-colors hover:bg-[var(--menu-dropdown-hover-bg)]"
-                  style={{ color: tokens.mobileMenuItemText, ...menuVars }}
-                >
-                  {item.label}
-                  {item.children.length > 0 && (
-                    <ChevronDown size={16} className={cn("transition-transform", expandedMobileItems.includes(item._id) && "rotate-180")} />
-                  )}
-                </button>
+                {item.children.length > 0 ? (
+                  <div className="w-full px-6 py-3 text-left flex items-center justify-between text-sm font-medium transition-colors hover:bg-[var(--menu-dropdown-hover-bg)]">
+                    <Link
+                      href={item.url}
+                      target={item.openInNewTab ? '_blank' : undefined}
+                      rel={item.openInNewTab ? 'noreferrer' : undefined}
+                      onClick={() => { setMobileMenuOpen(false); }}
+                      className="flex-1 transition-colors hover:text-[var(--menu-hover-text)]"
+                      style={{ color: tokens.mobileMenuItemText, ...menuVars }}
+                    >
+                      {item.label}
+                    </Link>
+                    <button
+                      type="button"
+                      aria-label={`Mở menu con ${item.label}`}
+                      aria-expanded={expandedMobileItems.includes(item._id)}
+                      aria-controls={`mobile-menu-${item._id}`}
+                      onClick={(event) => {
+                        event.preventDefault();
+                        event.stopPropagation();
+                        toggleMobileItem(item._id);
+                      }}
+                      className="ml-3 flex items-center justify-center"
+                      style={{ color: tokens.mobileMenuItemText, ...menuVars }}
+                    >
+                      <ChevronDown size={16} className={cn("transition-transform", expandedMobileItems.includes(item._id) && "rotate-180")} />
+                    </button>
+                  </div>
+                ) : (
+                  <Link
+                    href={item.url}
+                    target={item.openInNewTab ? '_blank' : undefined}
+                    rel={item.openInNewTab ? 'noreferrer' : undefined}
+                    onClick={() => { setMobileMenuOpen(false); }}
+                    className="block w-full px-6 py-3 text-left text-sm font-medium transition-colors hover:bg-[var(--menu-dropdown-hover-bg)] hover:text-[var(--menu-hover-text)]"
+                    style={{ color: tokens.mobileMenuItemText, ...menuVars }}
+                  >
+                    {item.label}
+                  </Link>
+                )}
                 {item.children.length > 0 && expandedMobileItems.includes(item._id) && (
-                  <div style={{ backgroundColor: tokens.surface }}>
+                  <div id={`mobile-menu-${item._id}`} style={{ backgroundColor: tokens.surface }}>
                     {item.children.map((child) => (
                       <Link
                         key={child._id}
