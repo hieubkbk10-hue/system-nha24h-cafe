@@ -1718,6 +1718,7 @@ function MinimalStyle({ product, brandColor, tokens, relatedProducts, enabledFie
     );
 
   const showPrice = enabledFields.has('price') || enabledFields.size === 0;
+  const showSalePrice = enabledFields.has('salePrice');
   const showStock = enabledFields.has('stock');
   const showDescription = enabledFields.has('description');
   const showSku = enabledFields.has('sku');
@@ -1730,6 +1731,9 @@ function MinimalStyle({ product, brandColor, tokens, relatedProducts, enabledFie
   const salePrice = selectedVariant ? selectedVariant.salePrice : product.salePrice;
   const isRangeFromVariant = Boolean(product.hasVariants && !selectedVariant);
   const priceDisplay = getPublicPriceLabel({ saleMode, price: basePrice, salePrice, isRangeFromVariant });
+  const discountPercent = priceDisplay.comparePrice
+    ? Math.round((1 - basePrice / priceDisplay.comparePrice) * 100)
+    : 0;
   const stockValue = selectedVariant?.stock ?? product.stock;
   const inStock = !showStock || stockValue > 0;
   const buyNowDisabled = requireStockForBuyNow && !inStock;
@@ -1752,17 +1756,17 @@ function MinimalStyle({ product, brandColor, tokens, relatedProducts, enabledFie
             <span className="truncate max-w-[160px]" style={{ color: tokens.breadcrumbActive }}>{product.name}</span>
           </nav>
         </div>
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-0 lg:gap-12 min-h-[calc(100vh-4rem)]">
-          <div className="lg:col-span-7 h-[60vh] lg:h-auto lg:py-0">
-            <div className="lg:sticky lg:top-8 lg:h-[calc(100vh-4rem)]">
-              <div className="flex flex-col-reverse md:flex-row gap-4 h-full">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-10 min-h-[calc(100vh-4rem)]">
+          <div className="lg:col-span-7 lg:py-0">
+            <div className="lg:sticky lg:top-8">
+              <div className="flex flex-col-reverse md:flex-row gap-3 md:gap-4 items-start">
                 {images.length > 1 && (
-                  <div className="flex md:flex-col gap-4 overflow-x-auto md:overflow-y-auto no-scrollbar md:w-24 shrink-0 px-6 md:px-0">
+                  <div className="flex md:flex-col gap-3 overflow-x-auto md:overflow-y-auto no-scrollbar md:w-20 shrink-0 px-6 md:px-0">
                     {images.map((img, index) => (
                       <button
                         key={img}
                         onClick={() =>{  setSelectedImage(index); }}
-                        className={`relative aspect-square w-20 md:w-full overflow-hidden rounded-sm transition-all duration-300 border ${
+                        className={`relative aspect-square w-16 md:w-full overflow-hidden rounded-sm transition-all duration-300 border ${
                           selectedImage === index ? 'opacity-100' : 'opacity-70 hover:opacity-100'
                         }`}
                         style={{
@@ -1775,7 +1779,15 @@ function MinimalStyle({ product, brandColor, tokens, relatedProducts, enabledFie
                   </div>
                 )}
 
-                <div className="flex-1 relative aspect-[4/5] md:aspect-auto rounded-sm overflow-hidden" style={{ backgroundColor: tokens.surfaceMuted }}>
+                <div className="flex-1 relative aspect-square w-full rounded-sm overflow-hidden" style={{ backgroundColor: tokens.surfaceMuted }}>
+                  {showSalePrice && priceDisplay.comparePrice && discountPercent > 0 && (
+                    <span
+                      className="absolute left-3 top-3 z-20 inline-flex items-center rounded-full px-2.5 py-1 text-[11px] font-semibold"
+                      style={{ backgroundColor: tokens.discountBadgeBg, color: tokens.discountBadgeText }}
+                    >
+                      -{discountPercent}%
+                    </span>
+                  )}
                   {images.length > 0 ? (
                     <BlurredProductImage src={images[selectedImage]} alt={product.name} sizes="(max-width: 1024px) 100vw, 60vw" />
                   ) : (
@@ -1788,16 +1800,31 @@ function MinimalStyle({ product, brandColor, tokens, relatedProducts, enabledFie
             </div>
           </div>
 
-          <div className="lg:col-span-5 px-6 py-6 lg:py-0 flex flex-col justify-center" style={{ backgroundColor: tokens.surface }}>
-            <div className="mb-6">
-              <h1 className="text-3xl md:text-5xl font-light tracking-tight mb-4" style={{ color: tokens.headingColor }}>
+          <div className="lg:col-span-5 px-6 py-2 lg:py-0 flex flex-col justify-center" style={{ backgroundColor: tokens.surface }}>
+            <div className="mb-5 space-y-3">
+              <h1 className="text-2xl md:text-3xl lg:text-[2rem] font-medium leading-tight tracking-tight" style={{ color: tokens.headingColor }}>
                 {product.name}
               </h1>
               {showRating && <RatingInline summary={ratingSummary} tokens={tokens} />}
               {showPrice && (
-                <p className="text-2xl font-light" style={{ color: tokens.priceColor }}>
-                  {priceDisplay.label}
-                </p>
+                <div className="flex flex-wrap items-baseline gap-x-2 gap-y-1">
+                  <p className="text-xl md:text-2xl font-semibold" style={{ color: tokens.priceColor }}>
+                    {priceDisplay.label}
+                  </p>
+                  {showSalePrice && priceDisplay.comparePrice && (
+                    <>
+                      <span className="text-sm md:text-base line-through" style={{ color: tokens.priceOriginalText }}>
+                        {formatPrice(priceDisplay.comparePrice)}
+                      </span>
+                      <span
+                        className="inline-flex items-center rounded-full px-2 py-0.5 text-[11px] font-semibold"
+                        style={{ backgroundColor: tokens.discountBadgeBg, color: tokens.discountBadgeText }}
+                      >
+                        -{discountPercent}%
+                      </span>
+                    </>
+                  )}
+                </div>
               )}
             </div>
 
@@ -1814,7 +1841,7 @@ function MinimalStyle({ product, brandColor, tokens, relatedProducts, enabledFie
             )}
 
             {(showAddToCart || showBuyNow || showWishlist) && (
-              <div className="flex flex-col gap-3 mb-8 border-t pt-6" style={{ borderColor: tokens.divider }}>
+              <div className="flex flex-col gap-3 mb-6 border-t pt-5" style={{ borderColor: tokens.divider }}>
                 <div className="flex gap-4">
                   {showAddToCart && (
                     <button

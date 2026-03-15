@@ -586,15 +586,15 @@ export function ProductDetailPreview({
               <span className="truncate max-w-[160px]" style={{ color: tokens.breadcrumbActive }}>{productName}</span>
             </div>
 
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-0 lg:gap-8">
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8">
               <div className="lg:col-span-7">
-                <div className="flex flex-col-reverse md:flex-row gap-4">
+                <div className="flex flex-col-reverse md:flex-row gap-3 md:gap-4 items-start">
                 {PREVIEW_IMAGES.length > 1 && (
-                  <div className="flex md:flex-col gap-4 overflow-x-auto md:overflow-y-auto md:w-24 shrink-0">
+                  <div className="flex md:flex-col gap-3 overflow-x-auto md:overflow-y-auto md:w-20 shrink-0">
                     {PREVIEW_IMAGES.slice(0, 3).map((img) => (
                       <div
                         key={img}
-                        className="relative aspect-square w-20 md:w-full overflow-hidden rounded-sm border"
+                        className="relative aspect-square w-16 md:w-full overflow-hidden rounded-sm border"
                         style={{ backgroundColor: tokens.surfaceMuted, borderColor: tokens.thumbnailBorder }}
                       >
                         <img src={img} alt="" className="h-full w-full object-contain" />
@@ -603,7 +603,15 @@ export function ProductDetailPreview({
                   </div>
                 )}
 
-                <div className="flex-1 relative aspect-[4/5] rounded-sm overflow-hidden" style={{ backgroundColor: tokens.surfaceMuted }}>
+                <div className="flex-1 relative aspect-square w-full rounded-sm overflow-hidden" style={{ backgroundColor: tokens.surfaceMuted }}>
+                  {discountPercent > 0 && (
+                    <span
+                      className="absolute left-3 top-3 z-30 inline-flex items-center rounded-full px-2.5 py-1 text-[11px] font-semibold"
+                      style={{ backgroundColor: tokens.discountBadgeBg, color: tokens.discountBadgeText }}
+                    >
+                      -{discountPercent}%
+                    </span>
+                  )}
                   {PREVIEW_IMAGES.length > 0 ? (
                     <BlurredPreviewImage src={PREVIEW_IMAGES[0]} alt={productName} />
                   ) : (
@@ -615,9 +623,9 @@ export function ProductDetailPreview({
                 </div>
               </div>
 
-              <div className="lg:col-span-5 px-0 md:px-2 py-6 lg:py-0 flex flex-col justify-center">
-                <div className="mb-6">
-                  <h1 className="text-3xl md:text-4xl font-light tracking-tight mb-4" style={{ color: tokens.headingColor }}>{productName}</h1>
+              <div className="lg:col-span-5 px-0 md:px-2 py-2 lg:py-0 flex flex-col justify-center">
+                <div className="mb-5 space-y-3">
+                  <h1 className="text-2xl md:text-3xl lg:text-[2rem] font-medium leading-tight tracking-tight" style={{ color: tokens.headingColor }}>{productName}</h1>
                   {showRating && hasRatingData && (
                     <div className="flex items-center gap-2 text-xs" style={{ color: tokens.ratingText }}>
                       <div className="flex gap-1">
@@ -634,16 +642,27 @@ export function ProductDetailPreview({
                       <span>{rating} ({reviews})</span>
                     </div>
                   )}
-                  <p className="text-2xl font-light" style={{ color: tokens.priceColor }}>
-                    {formatVND(price)}
-                  </p>
+                  <div className="flex flex-wrap items-baseline gap-x-2 gap-y-1">
+                    <p className="text-xl md:text-2xl font-semibold" style={{ color: tokens.priceColor }}>
+                      {formatVND(price)}
+                    </p>
+                    <span className="text-sm md:text-base line-through" style={{ color: tokens.priceOriginalText }}>
+                      {formatVND(originalPrice)}
+                    </span>
+                    <span
+                      className="inline-flex items-center rounded-full px-2 py-0.5 text-[11px] font-semibold"
+                      style={{ backgroundColor: tokens.discountBadgeBg, color: tokens.discountBadgeText }}
+                    >
+                      -{discountPercent}%
+                    </span>
+                  </div>
                   <div className="mt-4">
                     {showVariants && <VariantPreview tokens={tokens} />}
                   </div>
                 </div>
 
                 {(showAddToCart || showBuyNow || showWishlist) && (
-                  <div className="flex flex-col gap-3 mb-6 border-t pt-6" style={{ borderColor: tokens.divider }}>
+                  <div className="flex flex-col gap-3 mb-5 border-t pt-5" style={{ borderColor: tokens.divider }}>
                     <div className="flex gap-4">
                       {showAddToCart && (
                         <button className="flex-1 h-14 uppercase tracking-wider text-sm font-medium" style={{ backgroundColor: tokens.ctaPrimaryBg, color: tokens.ctaPrimaryText }}>
