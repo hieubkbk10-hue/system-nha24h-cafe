@@ -4,6 +4,7 @@ import { notFound } from 'next/navigation';
 import InternalLinkCluster from '@/components/seo/InternalLinkCluster';
 import { RelatedPagesBlock } from '@/components/seo/RelatedPagesBlock';
 import { getFunnelInternalLinks, getRelatedLandingPages } from '@/lib/seo/internal-links';
+import LandingHeroImage from '@/components/seo/LandingHeroImage';
 
 interface Props { params: Promise<{ slug: string }> }
 
@@ -20,7 +21,7 @@ export default async function ComparePage({ params }: Props) {
   const funnelLinks = getFunnelInternalLinks('compare');
   return (
     <div className="container mx-auto px-4 py-12 max-w-4xl">
-      {page.heroImage && <img src={page.heroImage} alt={page.title} className="w-full h-64 object-cover rounded-lg mb-8" />}
+      {page.heroImage && <LandingHeroImage alt={page.title} src={page.heroImage} variant="hero" />}
       <h1 className="text-4xl font-bold mb-4">{page.title}</h1>
       <p className="text-xl text-slate-600 mb-8">{page.summary}</p>
       {page.content && <div className="prose max-w-none" dangerouslySetInnerHTML={{ __html: page.content }} />}

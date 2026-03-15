@@ -253,26 +253,24 @@ export const buildSiteSchemas = (params: {
     })
   );
 
+  schemas.push(
+    buildOrganizationSchema({
+      description: params.seo.seo_description || params.site.site_tagline,
+      email: params.contact.contact_email,
+      logo: params.site.site_logo,
+      name: params.site.site_name,
+      phone: params.contact.contact_phone,
+      sameAs,
+      url: params.site.site_url || process.env.NEXT_PUBLIC_SITE_URL || '',
+    })
+  );
+
   if (
     shouldIncludeLocalBusiness({ contact: params.contact, site: params.site })
   ) {
-    // LocalBusiness thay thế Organization khi đủ local signals
     schemas.push(
       buildLocalBusinessSchema({
         address: params.contact.contact_address,
-        description: params.seo.seo_description || params.site.site_tagline,
-        email: params.contact.contact_email,
-        logo: params.site.site_logo,
-        name: params.site.site_name,
-        phone: params.contact.contact_phone,
-        sameAs,
-        url: params.site.site_url || process.env.NEXT_PUBLIC_SITE_URL || '',
-      })
-    );
-  } else {
-    // Organization schema mặc định an toàn
-    schemas.push(
-      buildOrganizationSchema({
         description: params.seo.seo_description || params.site.site_tagline,
         email: params.contact.contact_email,
         logo: params.site.site_logo,

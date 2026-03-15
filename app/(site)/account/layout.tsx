@@ -15,7 +15,6 @@ export async function generateMetadata(): Promise<Metadata> {
     };
   }
   const site = await getSiteSettings();
-  const baseUrl = (site.site_url || process.env.NEXT_PUBLIC_SITE_URL) ?? '';
 
   return {
     title: {
@@ -26,9 +25,6 @@ export async function generateMetadata(): Promise<Metadata> {
     robots: {
       index: false,
       follow: false,
-    },
-    alternates: {
-      canonical: `${baseUrl}/account`,
     },
   };
 }

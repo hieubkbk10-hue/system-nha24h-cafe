@@ -6,6 +6,7 @@ import { buildHubMetadata } from '@/lib/seo/metadata';
 import InternalLinkCluster from '@/components/seo/InternalLinkCluster';
 import { getHubInternalLinks } from '@/lib/seo/internal-links';
 import { JsonLd, generateItemListSchema } from '@/components/seo/JsonLd';
+import LandingHeroImage from '@/components/seo/LandingHeroImage';
 
 export const revalidate = 1800; // 30 minutes
 
@@ -65,11 +66,7 @@ export default async function FeaturesPage() {
                 className="block border rounded-lg p-6 hover:border-primary transition-colors"
               >
                 {feature.heroImage && (
-                  <img
-                    src={feature.heroImage}
-                    alt={feature.title}
-                    className="w-full h-40 object-cover rounded mb-4"
-                  />
+                  <LandingHeroImage alt={feature.title} src={feature.heroImage} />
                 )}
                 <h2 className="text-xl font-semibold mb-2">{feature.title}</h2>
                 <p className="text-slate-600 text-sm line-clamp-3">

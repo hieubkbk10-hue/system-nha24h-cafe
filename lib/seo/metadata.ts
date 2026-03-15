@@ -44,6 +44,26 @@ const resolveLocale = (language: string): string => {
   return 'en_US';
 };
 
+const buildAlternates = (params: {
+  canonical?: string;
+  indexable: boolean;
+}): Metadata['alternates'] | undefined => {
+  if (!params.canonical) {
+    return undefined;
+  }
+
+  if (!params.indexable) {
+    return undefined;
+  }
+
+  return {
+    canonical: params.canonical,
+    languages: {
+      'vi-VN': params.canonical,
+    },
+  };
+};
+
 // Legacy: giữ để backward compatibility
 export const buildSeoContext = (site: SiteSettings, seo: SEOSettings): SeoContext => {
   const baseUrl = resolveBaseUrl(site.site_url);
@@ -96,7 +116,10 @@ export const buildMetadata = (params: {
     : `${params.title} | ${params.context.siteName}`;
 
   return {
-    alternates: params.canonical ? { canonical: params.canonical } : undefined,
+    alternates: buildAlternates({
+      canonical: params.canonical,
+      indexable: params.indexable,
+    }),
     description: params.description,
     keywords: resolvedKeywords.length > 0 ? resolvedKeywords : undefined,
     metadataBase: buildMetadataBase(params.context.baseUrl),
@@ -190,7 +213,10 @@ export const buildSeoMetadata = (params: {
   const openGraphTitle = params.useTitleTemplate ? title : `${title} | ${siteName}`;
 
   return {
-    alternates: canonical ? { canonical } : undefined,
+    alternates: buildAlternates({
+      canonical,
+      indexable,
+    }),
     description,
     keywords: keywords.length > 0 ? keywords : undefined,
     metadataBase: buildMetadataBase(baseUrl),
