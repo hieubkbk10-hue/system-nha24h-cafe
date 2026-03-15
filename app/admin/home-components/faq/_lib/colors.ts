@@ -38,6 +38,10 @@ export interface FaqStyleTokens {
   tabInactiveText: string;
   tabOverflowText: string;
   badgeBg: string;
+  badgeText: string;
+  badgeBorder: string;
+  iconSolidBg: string;
+  iconSolidText: string;
   ctaBg: string;
   ctaText: string;
   ctaShadow: string;
@@ -187,7 +191,7 @@ const generatePalette = (hex: string): FaqPalette => ({
   active: oklchShift(hex, { l: -0.12 }),
   border: oklchShift(hex, { l: 0.26, c: -0.02 }),
   textOnSolid: getAPCATextColor(hex, 14, 700),
-  textInteractive: oklchShift(hex, { l: -0.24, c: -0.02 }),
+  textInteractive: ensureAPCATextColor(oklchShift(hex, { l: -0.24, c: -0.02 }), '#ffffff', 14, 600),
 });
 
 const getAnalogous = (hex: string): [string, string] => {
@@ -289,6 +293,13 @@ export const getFaqColors = ({
 
   const basePanelBg = '#ffffff';
   const basePanelMuted = '#f8fafc';
+  const neutralSoft = '#f8fafc';
+  const neutralBorder = '#e2e8f0';
+  const badgeBg = secondaryPalette.solid;
+  const badgeBorder = neutralBorder;
+  const badgeText = ensureAPCATextColor(getAPCATextColor(badgeBg, 12, 700), badgeBg, 12, 700);
+  const iconSolidBg = primaryPalette.solid;
+  const iconSolidText = ensureAPCATextColor(getAPCATextColor(iconSolidBg, 14, 700), iconSolidBg, 14, 700);
 
   const base: FaqStyleTokens = {
     sectionBg: '#ffffff',
@@ -298,21 +309,25 @@ export const getFaqColors = ({
     panelTitleText: ensureAPCATextColor('#0f172a', basePanelBg, 18, 600),
     panelBg: basePanelBg,
     panelBgMuted: basePanelMuted,
-    panelBorder: oklchShift(resolvedSecondary, { l: 0.45 }),
-    panelBorderStrong: oklchShift(resolvedSecondary, { l: 0.35 }),
-    chevron: secondaryPalette.solid,
-    iconBg: primaryPalette.surface,
-    iconText: primaryPalette.textInteractive,
-    number: secondaryPalette.textInteractive,
-    timelineLine: oklchShift(resolvedSecondary, { l: 0.42 }),
+    panelBorder: neutralBorder,
+    panelBorderStrong: secondaryPalette.solid,
+    chevron: ensureAPCATextColor(resolvedSecondary, basePanelBg, 14, 700),
+    iconBg: neutralSoft,
+    iconText: ensureAPCATextColor(primaryPalette.solid, neutralSoft, 14, 700),
+    number: ensureAPCATextColor(resolvedSecondary, '#ffffff', 14, 700),
+    timelineLine: ensureAPCATextColor(oklchShift(resolvedSecondary, { l: 0.12, c: -0.01 }), '#ffffff', 14, 600),
     timelineDotBorder: secondaryPalette.solid,
     timelineDotBg: '#ffffff',
     tabActiveBg: secondaryPalette.solid,
-    tabActiveText: getAPCATextColor(secondaryPalette.solid, 14, 600),
+    tabActiveText: ensureAPCATextColor(getAPCATextColor(secondaryPalette.solid, 14, 600), secondaryPalette.solid, 14, 600),
     tabInactiveBg: '#f1f5f9',
     tabInactiveText: ensureAPCATextColor('#475569', '#f1f5f9', 14, 500),
-    tabOverflowText: ensureAPCATextColor('#94a3b8', '#ffffff', 14, 500),
-    badgeBg: oklchShift(resolvedSecondary, { l: 0.42 }),
+    tabOverflowText: ensureAPCATextColor('#64748b', '#ffffff', 14, 500),
+    badgeBg,
+    badgeText,
+    badgeBorder,
+    iconSolidBg,
+    iconSolidText,
     ctaBg: primaryPalette.solid,
     ctaText: primaryPalette.textOnSolid,
     ctaShadow: 'none',
@@ -325,8 +340,12 @@ export const getFaqColors = ({
       panelBgMuted: '#ffffff',
       questionText: ensureAPCATextColor(base.questionText, '#ffffff', 16, 500),
       panelTitleText: ensureAPCATextColor(base.panelTitleText, '#ffffff', 18, 600),
-      iconBg: primaryPalette.surface,
-      iconText: primaryPalette.textInteractive,
+      iconBg: '#f8fafc',
+      iconText: ensureAPCATextColor(primaryPalette.solid, '#f8fafc', 14, 700),
+      badgeBg: secondaryPalette.surface,
+      badgeBorder: '#e2e8f0',
+      badgeText: ensureAPCATextColor(secondaryPalette.textInteractive, secondaryPalette.surface, 12, 700),
+      panelBorderStrong: secondaryPalette.solid,
     };
   }
 
@@ -334,12 +353,18 @@ export const getFaqColors = ({
     return {
       ...base,
       panelBg: '#ffffff',
-      panelBgMuted: '#ffffff',
+      panelBgMuted: '#f8fafc',
       questionText: ensureAPCATextColor(base.questionText, '#ffffff', 16, 500),
       panelTitleText: ensureAPCATextColor(base.panelTitleText, '#ffffff', 18, 600),
       ctaBg: primaryPalette.solid,
       ctaText: primaryPalette.textOnSolid,
       ctaShadow: 'none',
+      iconBg: '#ffffff',
+      iconText: ensureAPCATextColor(primaryPalette.solid, '#ffffff', 12, 700),
+      badgeBg: secondaryPalette.surface,
+      badgeBorder: '#e2e8f0',
+      badgeText: ensureAPCATextColor(secondaryPalette.textInteractive, secondaryPalette.surface, 12, 700),
+      panelBorderStrong: secondaryPalette.solid,
     };
   }
 
@@ -350,7 +375,10 @@ export const getFaqColors = ({
       panelBgMuted: '#ffffff',
       questionText: ensureAPCATextColor(base.questionText, '#ffffff', 16, 500),
       panelTitleText: ensureAPCATextColor(base.panelTitleText, '#ffffff', 18, 600),
-      number: secondaryPalette.solid,
+      number: ensureAPCATextColor(secondaryPalette.solid, '#ffffff', 18, 700),
+      badgeBg: primaryPalette.surface,
+      badgeBorder: '#e2e8f0',
+      badgeText: ensureAPCATextColor(primaryPalette.textInteractive, primaryPalette.surface, 12, 700),
     };
   }
 
@@ -358,18 +386,22 @@ export const getFaqColors = ({
     return {
       ...base,
       panelBg: '#ffffff',
-      panelBgMuted: secondaryPalette.surfaceSoft,
-      questionText: ensureAPCATextColor(base.questionText, secondaryPalette.surfaceSoft, 16, 500),
-      panelTitleText: ensureAPCATextColor(base.panelTitleText, secondaryPalette.surfaceSoft, 18, 600),
-      timelineLine: oklchShift(resolvedSecondary, { l: 0.4 }),
+      panelBgMuted: '#f8fafc',
+      questionText: ensureAPCATextColor(base.questionText, '#f8fafc', 16, 500),
+      panelTitleText: ensureAPCATextColor(base.panelTitleText, '#f8fafc', 18, 600),
+      timelineLine: ensureAPCATextColor(oklchShift(resolvedSecondary, { l: 0.12, c: -0.01 }), '#ffffff', 14, 600),
       timelineDotBorder: secondaryPalette.solid,
       timelineDotBg: '#ffffff',
+      iconText: ensureAPCATextColor(secondaryPalette.solid, '#ffffff', 12, 700),
+      badgeBg: secondaryPalette.surface,
+      badgeBorder: '#e2e8f0',
+      badgeText: ensureAPCATextColor(secondaryPalette.textInteractive, secondaryPalette.surface, 12, 700),
     };
   }
 
   if (style === 'tabbed') {
-    const panelBg = secondaryPalette.surfaceSoft;
-    const panelMuted = secondaryPalette.surface;
+    const panelBg = '#ffffff';
+    const panelMuted = '#f8fafc';
 
     return {
       ...base,
@@ -378,10 +410,16 @@ export const getFaqColors = ({
       questionText: ensureAPCATextColor(base.questionText, panelMuted, 16, 500),
       panelTitleText: ensureAPCATextColor(base.panelTitleText, panelBg, 18, 600),
       tabActiveBg: secondaryPalette.solid,
-      tabActiveText: getAPCATextColor(secondaryPalette.solid, 14, 600),
+      tabActiveText: ensureAPCATextColor(getAPCATextColor(secondaryPalette.solid, 14, 600), secondaryPalette.solid, 14, 600),
       tabInactiveBg: '#f1f5f9',
       tabInactiveText: ensureAPCATextColor('#475569', '#f1f5f9', 14, 500),
-      tabOverflowText: ensureAPCATextColor('#94a3b8', '#ffffff', 14, 500),
+      tabOverflowText: ensureAPCATextColor('#64748b', '#ffffff', 14, 500),
+      iconBg: '#ffffff',
+      iconText: ensureAPCATextColor(primaryPalette.solid, '#ffffff', 12, 700),
+      badgeBg: secondaryPalette.surface,
+      badgeBorder: '#e2e8f0',
+      badgeText: ensureAPCATextColor(secondaryPalette.textInteractive, secondaryPalette.surface, 12, 700),
+      panelBorderStrong: secondaryPalette.solid,
     };
   }
 

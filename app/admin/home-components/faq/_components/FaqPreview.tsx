@@ -80,6 +80,8 @@ export const FaqPreview = ({
       label: 'body',
     },
     { background: tokens.ctaBg, text: tokens.ctaText, fontSize: 14, fontWeight: 700, label: 'cta' },
+    { background: tokens.badgeBg, text: tokens.badgeText, fontSize: 12, fontWeight: 700, label: 'badge' },
+    { background: tokens.iconSolidBg, text: tokens.iconSolidText, fontSize: 12, fontWeight: 700, label: 'iconSolid' },
   ];
 
   if (style === 'tabbed') {

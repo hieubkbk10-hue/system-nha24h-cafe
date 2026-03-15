@@ -93,8 +93,12 @@ export function FaqSectionShared({
     return (
       <div className="flex items-center justify-center pt-3 md:pt-4">
         <span
-          className="inline-flex min-h-[32px] items-center rounded-full px-3.5 py-1.5 text-xs font-semibold"
-          style={{ backgroundColor: tokens.badgeBg, color: tokens.number }}
+          className="inline-flex min-h-[32px] items-center rounded-full border px-3.5 py-1.5 text-xs font-semibold"
+          style={{
+            backgroundColor: tokens.badgeBg,
+            borderColor: tokens.badgeBorder,
+            color: tokens.badgeText,
+          }}
         >
           +{remainingCount} câu hỏi khác
         </span>
@@ -254,11 +258,18 @@ export function FaqSectionShared({
                 <div className="mb-4 flex items-center gap-3">
                   <div
                     className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-xl text-sm font-bold"
-                    style={{ backgroundColor: tokens.iconBg, color: tokens.iconText }}
+                    style={{ backgroundColor: tokens.iconSolidBg, color: tokens.iconSolidText }}
                   >
                     {String(idx + 1).padStart(2, '0')}
                   </div>
-                  <span className="text-xs font-semibold uppercase tracking-[0.14em]" style={{ color: tokens.number }}>
+                  <span
+                    className="inline-flex min-h-[28px] items-center rounded-full border px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.16em]"
+                    style={{
+                      backgroundColor: tokens.badgeBg,
+                      borderColor: tokens.badgeBorder,
+                      color: tokens.badgeText,
+                    }}
+                  >
                     FAQ
                   </span>
                 </div>
@@ -337,11 +348,18 @@ export function FaqSectionShared({
                 <div className="mb-3 flex items-center gap-3">
                   <span
                     className="inline-flex h-8 min-w-[32px] items-center justify-center rounded-full px-2 text-xs font-semibold"
-                    style={{ backgroundColor: tokens.iconBg, color: tokens.iconText }}
+                    style={{ backgroundColor: tokens.iconSolidBg, color: tokens.iconSolidText }}
                   >
                     {idx + 1}
                   </span>
-                  <span className="text-xs font-semibold uppercase tracking-[0.14em]" style={{ color: tokens.number }}>
+                  <span
+                    className="inline-flex min-h-[28px] items-center rounded-full border px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.16em]"
+                    style={{
+                      backgroundColor: tokens.badgeBg,
+                      borderColor: tokens.badgeBorder,
+                      color: tokens.badgeText,
+                    }}
+                  >
                     Hỏi đáp nhanh
                   </span>
                 </div>
@@ -421,9 +439,16 @@ export function FaqSectionShared({
                       borderColor: tokens.panelBorder,
                     }}
                   >
-                    <p className="mb-2 text-xs font-semibold uppercase tracking-[0.14em]" style={{ color: tokens.number }}>
+                    <span
+                      className="mb-3 inline-flex min-h-[28px] items-center rounded-full border px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.16em]"
+                      style={{
+                        backgroundColor: tokens.badgeBg,
+                        borderColor: tokens.badgeBorder,
+                        color: tokens.badgeText,
+                      }}
+                    >
                       Bước hỗ trợ {idx + 1}
-                    </p>
+                    </span>
                     <h4 className="mb-2 text-sm font-semibold leading-6 md:text-base" style={{ color: tokens.panelTitleText }}>
                       {getValue(item.question) ?? `${FAQ_FALLBACKS.question} ${idx + 1}`}
                     </h4>
@@ -536,11 +561,18 @@ export function FaqSectionShared({
             <div className="mb-4 flex items-center gap-3">
               <span
                 className="inline-flex h-9 min-w-[36px] items-center justify-center rounded-full px-2 text-xs font-semibold"
-                style={{ backgroundColor: tokens.iconBg, color: tokens.iconText }}
+                style={{ backgroundColor: tokens.iconSolidBg, color: tokens.iconSolidText }}
               >
                 {activeTab + 1}
               </span>
-              <span className="text-xs font-semibold uppercase tracking-[0.14em]" style={{ color: tokens.number }}>
+              <span
+                className="inline-flex min-h-[28px] items-center rounded-full border px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.16em]"
+                style={{
+                  backgroundColor: tokens.badgeBg,
+                  borderColor: tokens.badgeBorder,
+                  color: tokens.badgeText,
+                }}
+              >
                 Chủ đề nổi bật
               </span>
             </div>
