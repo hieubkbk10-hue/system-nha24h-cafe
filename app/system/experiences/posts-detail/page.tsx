@@ -31,36 +31,6 @@ type DetailLayoutStyle = 'classic' | 'modern' | 'minimal';
 
 type PostDetailExperienceConfig = {
   layoutStyle: DetailLayoutStyle;
-  layouts: {
-    classic: ClassicLayoutConfig;
-    modern: ModernLayoutConfig;
-    minimal: MinimalLayoutConfig;
-  };
-};
-
-type ClassicLayoutConfig = {
-  showAuthor: boolean;
-  showTags: boolean;
-  showShare: boolean;
-  showComments: boolean;
-  showCommentLikes: boolean;
-  showCommentReplies: boolean;
-  showRelated: boolean;
-  showThumbnail: boolean;
-};
-
-type ModernLayoutConfig = {
-  showAuthor: boolean;
-  showTags: boolean;
-  showShare: boolean;
-  showComments: boolean;
-  showCommentLikes: boolean;
-  showCommentReplies: boolean;
-  showRelated: boolean;
-  showThumbnail: boolean;
-};
-
-type MinimalLayoutConfig = {
   showAuthor: boolean;
   showTags: boolean;
   showShare: boolean;
@@ -85,11 +55,14 @@ const LAYOUT_STYLES: LayoutOption<DetailLayoutStyle>[] = [
 
 const DEFAULT_CONFIG: PostDetailExperienceConfig = {
   layoutStyle: 'classic',
-  layouts: {
-    classic: { showAuthor: true, showTags: true, showShare: true, showComments: true, showCommentLikes: true, showCommentReplies: true, showRelated: true, showThumbnail: true },
-    modern: { showAuthor: true, showTags: true, showShare: true, showComments: true, showCommentLikes: true, showCommentReplies: true, showRelated: true, showThumbnail: true },
-    minimal: { showAuthor: false, showTags: true, showShare: true, showComments: true, showCommentLikes: true, showCommentReplies: true, showRelated: true, showThumbnail: true },
-  },
+  showAuthor: true,
+  showTags: true,
+  showShare: true,
+  showComments: true,
+  showCommentLikes: true,
+  showCommentReplies: true,
+  showRelated: true,
+  showThumbnail: true,
 };
 
 const HINTS = [
@@ -97,7 +70,7 @@ const HINTS = [
   'Modern layout tốt cho bài viết có hình ảnh đẹp.',
   'Minimal tập trung vào nội dung, ít distraction.',
   'Related posts giúp tăng pageview.',
-  'Mỗi layout có config riêng - chuyển tab để chỉnh.',
+  'Thiết lập hiển thị dùng chung cho cả 3 layout.',
 ];
 
 function ModuleFeatureStatus({ label, enabled, href, moduleName }: { label: string; enabled: boolean; href: string; moduleName: string }) {
@@ -140,49 +113,45 @@ export default function PostDetailExperiencePage() {
   const schedulingFeature = useQuery(api.admin.modules.getModuleFeature, { featureKey: 'enableScheduling', moduleKey: 'posts' });
 
   const serverConfig = useMemo<PostDetailExperienceConfig>(() => {
-    const raw = experienceSetting?.value as Partial<PostDetailExperienceConfig> | undefined;
+    const raw = experienceSetting?.value as (Partial<PostDetailExperienceConfig> & {
+      layouts?: {
+        classic?: Partial<PostDetailExperienceConfig>;
+        modern?: Partial<PostDetailExperienceConfig>;
+        minimal?: Partial<PostDetailExperienceConfig>;
+      };
+    }) | undefined;
     const legacyStyle = legacyDetailStyleSetting?.value as DetailLayoutStyle | undefined;
+    const legacyShared = raw?.layouts?.classic ?? raw?.layouts?.modern ?? raw?.layouts?.minimal;
 
     return {
+      ...DEFAULT_CONFIG,
+      ...legacyShared,
+      ...raw,
       layoutStyle: raw?.layoutStyle ?? legacyStyle ?? DEFAULT_CONFIG.layoutStyle,
-      layouts: {
-        classic: { ...DEFAULT_CONFIG.layouts.classic, ...raw?.layouts?.classic },
-        modern: { ...DEFAULT_CONFIG.layouts.modern, ...raw?.layouts?.modern },
-        minimal: { ...DEFAULT_CONFIG.layouts.minimal, ...raw?.layouts?.minimal },
-      },
     };
   }, [experienceSetting?.value, legacyDetailStyleSetting?.value]);
 
   const isLoading = experienceSetting === undefined || postsModule === undefined || postFields === undefined;
   const { config, setConfig, hasChanges } = useExperienceConfig(serverConfig, DEFAULT_CONFIG, isLoading);
 
-  // Get current layout config for preview
-  const currentLayoutConfig = config.layouts[config.layoutStyle];
   const canUseComments = commentsModule?.enabled ?? false;
   const canUseCommentLikes = canUseComments && (commentsLikesFeature?.enabled ?? false);
   const canUseCommentReplies = canUseComments && (commentsRepliesFeature?.enabled ?? false);
   const canUseTags = tagsFeature?.enabled ?? false;
 
-  // Update current layout's config
-  const updateLayoutConfig = <K extends keyof typeof currentLayoutConfig>(
+  const updateConfig = <K extends keyof Omit<PostDetailExperienceConfig, 'layoutStyle'>>(
     key: K,
-    value: (typeof currentLayoutConfig)[K]
+    value: PostDetailExperienceConfig[K]
   ) => {
     setConfig(prev => ({
       ...prev,
-      layouts: {
-        ...prev.layouts,
-        [prev.layoutStyle]: {
-          ...prev.layouts[prev.layoutStyle],
-          [key]: value,
-        },
-      },
+      [key]: value,
     }));
   };
 
   const authorField = useMemo(() => postFields?.find(field => field.fieldKey === AUTHOR_FIELD_KEY), [postFields]);
   const authorFieldEnabled = authorField?.enabled ?? false;
-  const isAuthorSyncPending = Boolean(authorField) && authorFieldEnabled !== currentLayoutConfig.showAuthor;
+  const isAuthorSyncPending = Boolean(authorField) && authorFieldEnabled !== config.showAuthor;
 
   useEffect(() => {
     setBrandColor(brandColors.primary);
@@ -200,21 +169,12 @@ export default function PostDetailExperiencePage() {
   const handleSave = async () => {
     setIsSaving(true);
     try {
-      const normalizedLayouts = (['classic', 'modern', 'minimal'] as const).reduce((acc, style) => {
-        const layout = config.layouts[style];
-        acc[style] = {
-          ...layout,
-          showComments: canUseComments ? layout.showComments : false,
-          showCommentLikes: canUseCommentLikes ? layout.showCommentLikes : false,
-          showCommentReplies: canUseCommentReplies ? layout.showCommentReplies : false,
-          showTags: canUseTags ? layout.showTags : false,
-        };
-        return acc;
-      }, {} as typeof config.layouts);
-
       const normalizedConfig = {
         ...config,
-        layouts: normalizedLayouts,
+        showComments: canUseComments ? config.showComments : false,
+        showCommentLikes: canUseCommentLikes ? config.showCommentLikes : false,
+        showCommentReplies: canUseCommentReplies ? config.showCommentReplies : false,
+        showTags: canUseTags ? config.showTags : false,
       };
 
       const settingsToSave: Array<{ group: string; key: string; value: unknown }> = [
@@ -224,8 +184,8 @@ export default function PostDetailExperiencePage() {
 
       const tasks: Promise<unknown>[] = [setMultipleSettings({ settings: settingsToSave })];
 
-      if (authorField && authorFieldEnabled !== currentLayoutConfig.showAuthor) {
-        tasks.push(updateField({ enabled: currentLayoutConfig.showAuthor, id: authorField._id as Id<'moduleFields'> }));
+      if (authorField && authorFieldEnabled !== config.showAuthor) {
+        tasks.push(updateField({ enabled: config.showAuthor, id: authorField._id as Id<'moduleFields'> }));
       }
 
       await Promise.all(tasks);
@@ -286,34 +246,34 @@ export default function PostDetailExperiencePage() {
           <ControlCard title="Hiển thị nội dung">
             <ToggleRow 
               label="Thông tin tác giả" 
-              checked={currentLayoutConfig.showAuthor} 
-              onChange={(v) => updateLayoutConfig('showAuthor', v)} 
+              checked={config.showAuthor} 
+              onChange={(v) => updateConfig('showAuthor', v)} 
               accentColor={brandColor}
               disabled={!authorField}
             />
             <ToggleRow 
               label="Danh sách tags" 
-              checked={currentLayoutConfig.showTags && canUseTags} 
-              onChange={(v) => updateLayoutConfig('showTags', v)} 
+              checked={config.showTags && canUseTags} 
+              onChange={(v) => updateConfig('showTags', v)} 
               accentColor={brandColor}
               disabled={!canUseTags}
             />
             <ToggleRow 
               label="Nút chia sẻ" 
-              checked={currentLayoutConfig.showShare} 
-              onChange={(v) => updateLayoutConfig('showShare', v)} 
+              checked={config.showShare} 
+              onChange={(v) => updateConfig('showShare', v)} 
               accentColor={brandColor} 
             />
             <ToggleRow
               label="Ảnh đại diện chi tiết"
-              checked={currentLayoutConfig.showThumbnail}
-              onChange={(v) => updateLayoutConfig('showThumbnail', v)}
+              checked={config.showThumbnail}
+              onChange={(v) => updateConfig('showThumbnail', v)}
               accentColor={brandColor}
             />
             <ToggleRow 
               label="Bài viết liên quan" 
-              checked={currentLayoutConfig.showRelated} 
-              onChange={(v) => updateLayoutConfig('showRelated', v)} 
+              checked={config.showRelated} 
+              onChange={(v) => updateConfig('showRelated', v)} 
               accentColor={brandColor} 
             />
           </ControlCard>
@@ -321,22 +281,22 @@ export default function PostDetailExperiencePage() {
           <ControlCard title="Bình luận">
             <ToggleRow 
               label="Hiển thị bình luận" 
-              checked={currentLayoutConfig.showComments && canUseComments} 
-              onChange={(v) => updateLayoutConfig('showComments', v)} 
+              checked={config.showComments && canUseComments} 
+              onChange={(v) => updateConfig('showComments', v)} 
               accentColor={brandColor}
               disabled={!canUseComments}
             />
             <ToggleRow 
               label="Nút thích" 
-              checked={currentLayoutConfig.showCommentLikes && canUseCommentLikes} 
-              onChange={(v) => updateLayoutConfig('showCommentLikes', v)} 
+              checked={config.showCommentLikes && canUseCommentLikes} 
+              onChange={(v) => updateConfig('showCommentLikes', v)} 
               accentColor={brandColor}
               disabled={!canUseCommentLikes}
             />
             <ToggleRow 
               label="Nút trả lời" 
-              checked={currentLayoutConfig.showCommentReplies && canUseCommentReplies} 
-              onChange={(v) => updateLayoutConfig('showCommentReplies', v)} 
+              checked={config.showCommentReplies && canUseCommentReplies} 
+              onChange={(v) => updateConfig('showCommentReplies', v)} 
               accentColor={brandColor}
               disabled={!canUseCommentReplies}
             />
@@ -431,14 +391,14 @@ export default function PostDetailExperiencePage() {
             <BrowserFrame url={`yoursite.com/posts/${examplePostSlug || 'example-post'}`}>
               <PostDetailPreview
                 layoutStyle={config.layoutStyle}
-                showAuthor={currentLayoutConfig.showAuthor}
-                showTags={currentLayoutConfig.showTags && canUseTags}
-                showRelated={currentLayoutConfig.showRelated}
-                showShare={currentLayoutConfig.showShare}
-                showThumbnail={currentLayoutConfig.showThumbnail}
-                showComments={currentLayoutConfig.showComments && canUseComments}
-                showCommentLikes={currentLayoutConfig.showCommentLikes && canUseCommentLikes}
-                showCommentReplies={currentLayoutConfig.showCommentReplies && canUseCommentReplies}
+                showAuthor={config.showAuthor}
+                showTags={config.showTags && canUseTags}
+                showRelated={config.showRelated}
+                showShare={config.showShare}
+                showThumbnail={config.showThumbnail}
+                showComments={config.showComments && canUseComments}
+                showCommentLikes={config.showCommentLikes && canUseCommentLikes}
+                showCommentReplies={config.showCommentReplies && canUseCommentReplies}
                 device={previewDevice}
                 brandColor={brandColor}
                 secondaryColor={secondaryColor}

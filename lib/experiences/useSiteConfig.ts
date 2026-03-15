@@ -45,37 +45,15 @@ type PostsDetailConfig = PostDetailLayoutConfig & {
   layoutStyle: PostDetailLayoutStyle;
 };
 
-const DEFAULT_POST_DETAIL_LAYOUTS: Record<PostDetailLayoutStyle, PostDetailLayoutConfig> = {
-  classic: {
-    showAuthor: true,
-    showShare: true,
-    showComments: true,
-    showCommentLikes: true,
-    showCommentReplies: true,
-    showRelated: true,
-    showTags: true,
-    showThumbnail: true,
-  },
-  modern: {
-    showAuthor: true,
-    showShare: true,
-    showComments: true,
-    showCommentLikes: true,
-    showCommentReplies: true,
-    showRelated: true,
-    showTags: true,
-    showThumbnail: true,
-  },
-  minimal: {
-    showAuthor: false,
-    showShare: true,
-    showComments: true,
-    showCommentLikes: true,
-    showCommentReplies: true,
-    showRelated: true,
-    showTags: true,
-    showThumbnail: true,
-  },
+const DEFAULT_POST_DETAIL_CONFIG: PostDetailLayoutConfig = {
+  showAuthor: true,
+  showShare: true,
+  showComments: true,
+  showCommentLikes: true,
+  showCommentReplies: true,
+  showRelated: true,
+  showTags: true,
+  showThumbnail: true,
 };
 
 const normalizePaginationType = (value?: string | boolean): PaginationType => {
@@ -133,16 +111,24 @@ export function usePostsDetailConfig(): PostsDetailConfig {
   return useMemo(() => {
     const raw = experienceSetting?.value as {
       layoutStyle?: PostDetailLayoutStyle;
+      showAuthor?: boolean;
+      showShare?: boolean;
+      showComments?: boolean;
+      showCommentLikes?: boolean;
+      showCommentReplies?: boolean;
+      showRelated?: boolean;
+      showTags?: boolean;
+      showThumbnail?: boolean;
       layouts?: Record<PostDetailLayoutStyle, Partial<PostDetailLayoutConfig>>;
     } | undefined;
     const legacyStyle = legacyStyleSetting?.value as PostDetailLayoutStyle | undefined;
     const layoutStyle = raw?.layoutStyle ?? legacyStyle ?? 'classic';
-    const defaultConfig = DEFAULT_POST_DETAIL_LAYOUTS[layoutStyle];
-    const layoutConfig = raw?.layouts?.[layoutStyle] ?? {};
+    const legacyShared = raw?.layouts?.classic ?? raw?.layouts?.modern ?? raw?.layouts?.minimal ?? {};
     return {
       layoutStyle,
-      ...defaultConfig,
-      ...layoutConfig,
+      ...DEFAULT_POST_DETAIL_CONFIG,
+      ...legacyShared,
+      ...raw,
     };
   }, [experienceSetting?.value, legacyStyleSetting?.value]);
 }
