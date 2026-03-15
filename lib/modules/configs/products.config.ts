@@ -56,6 +56,12 @@ export const productsModule = defineModuleWithRuntime({
       type: 'toggle',
       default: true,
     },
+    {
+      key: 'enableImageCrop',
+      label: 'Bật cắt ảnh vuông 1:1 khi upload',
+      type: 'toggle',
+      default: false,
+    },
     { key: 'lowStockThreshold', label: 'Ngưỡng tồn kho thấp', type: 'number', default: 10 },
     {
       key: 'variantEnabled',

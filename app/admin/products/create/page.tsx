@@ -118,6 +118,11 @@ function ProductCreateContent() {
     return 'cart';
   }, [settingsData]);
 
+  const enableImageCrop = useMemo(() => {
+    const setting = settingsData?.find(s => s.settingKey === 'enableImageCrop');
+    return Boolean(setting?.value);
+  }, [settingsData]);
+
   const isAffiliateMode = saleMode === 'affiliate';
   const isPriceRequired = saleMode === 'cart';
   const showProductTypeSelector = productTypeMode === 'both';
@@ -605,7 +610,7 @@ function ProductCreateContent() {
           <Card>
             <CardHeader><CardTitle className="text-base">Ảnh sản phẩm</CardTitle></CardHeader>
             <CardContent>
-              <ImageUpload value={image} onChange={setImage} folder="products" />
+              <ImageUpload value={image} onChange={setImage} folder="products" enableSquareCrop={enableImageCrop} />
             </CardContent>
           </Card>
 
