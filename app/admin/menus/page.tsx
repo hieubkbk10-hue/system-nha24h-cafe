@@ -313,12 +313,14 @@ function MenuItemsEditor({ menuId }: { menuId: Id<"menus"> }) {
   useEffect(() => {
     if (!menuItemsData) {return;}
     const nextItems = buildDraftItems(menuItemsData);
-    if (pendingSync || originalItems.length === 0 || !hasChanges) {
+    const isInitialSync = originalItems.length === 0 && draftItems.length === 0;
+
+    if (pendingSync || isInitialSync || !hasChanges) {
       setDraftItems(nextItems);
       setOriginalItems(nextItems);
       setPendingSync(false);
     }
-  }, [menuItemsData, pendingSync, originalItems.length, hasChanges]);
+  }, [menuItemsData, pendingSync, originalItems.length, draftItems.length, hasChanges]);
 
   useEffect(() => {
     if (isQuickPickerOpen) {return;}
