@@ -1429,7 +1429,7 @@ function ModernStyle({ product, brandColor, tokens, relatedProducts, enabledFiel
                   <div className="relative aspect-square rounded-xl flex items-center justify-center overflow-hidden" style={{ backgroundColor: tokens.surfaceMuted }}>
                     {showSalePrice && priceDisplay.comparePrice && discountPercent > 0 && (
                       <span
-                        className="absolute left-3 top-3 z-10 inline-flex items-center rounded-full px-2.5 py-1 text-[11px] font-semibold"
+                        className="absolute left-3 top-3 z-20 inline-flex items-center rounded-full px-2.5 py-1 text-[11px] font-semibold"
                         style={{ backgroundColor: tokens.discountBadgeBg, color: tokens.discountBadgeText }}
                       >
                         -{discountPercent}%
