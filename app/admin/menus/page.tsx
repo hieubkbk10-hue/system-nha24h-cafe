@@ -9,6 +9,7 @@ import {
   Button, Card, CardContent, CardHeader, CardTitle, Dialog, DialogContent, DialogHeader, DialogTitle, Input, Label, cn
 } from '../components/ui';
 import { ModuleGuard } from '../components/ModuleGuard';
+import { BulkActionBar, SelectCheckbox } from '../components/TableUtilities';
 import { 
   ArrowDown, ArrowUp, ChevronLeft, ChevronRight, Copy, ExternalLink, Eye, EyeOff, 
   GripVertical, Loader2, Menu, Plus, Trash2
@@ -157,6 +158,7 @@ function MenuItemsEditor({ menuId }: { menuId: Id<"menus"> }) {
   const [isQuickPickerOpen, setIsQuickPickerOpen] = useState(false);
   const [quickPickerTargetId, setQuickPickerTargetId] = useState<string | null>(null);
   const [quickRouteSearch, setQuickRouteSearch] = useState('');
+  const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [pickerStep, setPickerStep] = useState<1 | 2 | 3>(1);
   const [selectedType, setSelectedType] = useState<'core' | 'module' | 'category' | 'detail' | null>(null);
   const [selectedModule, setSelectedModule] = useState<'posts' | 'products' | 'services' | null>(null);
@@ -331,11 +333,18 @@ function MenuItemsEditor({ menuId }: { menuId: Id<"menus"> }) {
     return draftItems.slice(start, start + menusPerPage);
   }, [draftItems, currentPage, menusPerPage]);
 
+  const allPageSelected = paginatedItems.length > 0 && paginatedItems.every(item => selectedIds.includes(item.localId));
+  const somePageSelected = paginatedItems.some(item => selectedIds.includes(item.localId));
+
   useEffect(() => {
     if (totalPages > 0 && currentPage > totalPages) {
       setCurrentPage(totalPages);
     }
   }, [currentPage, totalPages]);
+
+  useEffect(() => {
+    setSelectedIds(prev => prev.filter(id => draftItems.some(item => item.localId === id)));
+  }, [draftItems]);
 
   const isLoading = menuItemsData === undefined;
 
@@ -409,6 +418,29 @@ function MenuItemsEditor({ menuId }: { menuId: Id<"menus"> }) {
   const handleDelete = (item: DraftMenuItem) => {
     if (confirm('Xóa liên kết này?')) {
       setDraftItems(prev => normalizeOrders(prev.filter(current => current.localId !== item.localId)));
+      setSelectedIds(prev => prev.filter(id => id !== item.localId));
+    }
+  };
+
+  const toggleSelectItem = (itemId: string) => {
+    setSelectedIds(prev => prev.includes(itemId) ? prev.filter(id => id !== itemId) : [...prev, itemId]);
+  };
+
+  const toggleSelectAllPage = () => {
+    const pageIds = paginatedItems.map(item => item.localId);
+    if (allPageSelected) {
+      setSelectedIds(prev => prev.filter(id => !pageIds.includes(id)));
+      return;
+    }
+    setSelectedIds(prev => Array.from(new Set([...prev, ...pageIds])));
+  };
+
+  const handleBulkDelete = () => {
+    if (selectedIds.length === 0) {return;}
+    if (confirm(`Xóa ${selectedIds.length} liên kết đã chọn?`)) {
+      setDraftItems(prev => normalizeOrders(prev.filter(item => !selectedIds.includes(item.localId))));
+      setSelectedIds([]);
+      toast.success(`Đã xóa ${selectedIds.length} liên kết`);
     }
   };
 
@@ -581,6 +613,26 @@ function MenuItemsEditor({ menuId }: { menuId: Id<"menus"> }) {
             {hasChanges ? 'Lưu tất cả' : 'Đã lưu'}
           </Button>
         </div>
+
+        <BulkActionBar
+          selectedCount={selectedIds.length}
+          entityLabel="liên kết"
+          onDelete={handleBulkDelete}
+          onClearSelection={() => { setSelectedIds([]); }}
+        />
+
+        {paginatedItems.length > 0 && (
+          <div className="flex items-center gap-3 rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm shadow-sm dark:border-slate-700 dark:bg-slate-900">
+            <SelectCheckbox
+              checked={allPageSelected}
+              indeterminate={!allPageSelected && somePageSelected}
+              onChange={toggleSelectAllPage}
+              title="Chọn tất cả trên trang"
+            />
+            <span className="text-slate-600 dark:text-slate-300">Chọn tất cả menu ở trang hiện tại</span>
+          </div>
+        )}
+
         {paginatedItems.map((item) => {
           const actualIndex = getActualIndex(item);
           
@@ -595,6 +647,7 @@ function MenuItemsEditor({ menuId }: { menuId: Id<"menus"> }) {
               onDragEnd={handleDragEnd}
               className={cn(
                 "flex items-center gap-2 p-3 bg-white dark:bg-slate-900 border rounded-lg shadow-sm transition-all min-w-0",
+                selectedIds.includes(item.localId) && "ring-2 ring-blue-500/40 border-blue-300 dark:border-blue-700",
                 showNested && item.depth === 1 ? "ml-8 border-l-4 border-l-orange-500/30" : "",
                 showNested && item.depth === 2 ? "ml-16 border-l-4 border-l-orange-500/50" : "border-slate-200 dark:border-slate-700",
                 !item.active && "opacity-50",
@@ -602,6 +655,14 @@ function MenuItemsEditor({ menuId }: { menuId: Id<"menus"> }) {
                 dragOverIndex === actualIndex && "border-orange-500 border-2 bg-orange-50 dark:bg-orange-900/20"
               )}
             >
+              <div className="flex items-center self-start pt-1">
+                <SelectCheckbox
+                  checked={selectedIds.includes(item.localId)}
+                  onChange={() => toggleSelectItem(item.localId)}
+                  title="Chọn menu item"
+                />
+              </div>
+
               <div className="flex flex-col gap-1 text-slate-300 cursor-grab active:cursor-grabbing">
                 <button type="button" onClick={ async () => handleMove(actualIndex, 'up')} className="hover:text-orange-600 disabled:opacity-30" disabled={actualIndex === 0}><ArrowUp size={14}/></button>
                 <GripVertical size={14} className="text-slate-400" />
