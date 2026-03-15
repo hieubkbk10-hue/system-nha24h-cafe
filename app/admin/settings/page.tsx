@@ -92,6 +92,12 @@ const REMOVED_SEO_KEYS = new Set([
   'seo_hreflang',
 ]);
 
+const HIDDEN_ADMIN_SEO_KEYS = new Set([
+  ...REMOVED_SEO_KEYS,
+  'seo_google_verification',
+  'seo_bing_verification',
+]);
+
 const REMOVED_CONTACT_KEYS = new Set([
   'contact_hotline',
   'social_zalo',
@@ -155,7 +161,7 @@ function SettingsContent() {
       // Skip fields whose linked feature is disabled
       if (field.linkedFeature && ! enabledFeatures[field.linkedFeature]) {return;}
 
-      if (REMOVED_SEO_KEYS.has(field.fieldKey)) {return;}
+      if (HIDDEN_ADMIN_SEO_KEYS.has(field.fieldKey)) {return;}
       if (REMOVED_CONTACT_KEYS.has(field.fieldKey)) {return;}
 
       // Skip lat/lng fields (managed by MapLocationPicker)
@@ -291,7 +297,7 @@ function SettingsContent() {
         ?.filter(f => {
           if (!f.enabled) {return false;}
           if (hasPrimaryField && f.fieldKey === 'site_brand_color') {return false;}
-          if (REMOVED_SEO_KEYS.has(f.fieldKey)) {return false;}
+          if (HIDDEN_ADMIN_SEO_KEYS.has(f.fieldKey)) {return false;}
           if (REMOVED_CONTACT_KEYS.has(f.fieldKey)) {return false;}
           return !f.linkedFeature || enabledFeatures[f.linkedFeature];
         })
