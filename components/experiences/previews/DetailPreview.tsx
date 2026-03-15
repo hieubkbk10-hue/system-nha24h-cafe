@@ -12,6 +12,7 @@ type PostDetailPreviewProps = {
   showTags?: boolean;
   showRelated: boolean;
   showShare: boolean;
+  showThumbnail?: boolean;
   showComments?: boolean;
   showCommentLikes?: boolean;
   showCommentReplies?: boolean;
@@ -322,6 +323,7 @@ function CommentItem({ comment, isReply = false, showLikes, showReplies, brandCo
 function ClassicStylePreview({
   showRelated,
   showShare,
+  showThumbnail = true,
   showAuthor = true,
   showTags = true,
   showComments = true,
@@ -416,8 +418,8 @@ function ClassicStylePreview({
               )}
             </header>
 
-            <div className="relative aspect-video w-full overflow-hidden rounded-xl bg-muted/60 shadow-[0_8px_30px_rgba(15,23,42,0.06)]">
-              {MOCK_POST.thumbnail ? (
+            {showThumbnail && MOCK_POST.thumbnail && (
+              <div className="relative aspect-video w-full overflow-hidden rounded-xl bg-muted/60 shadow-[0_8px_30px_rgba(15,23,42,0.06)]">
                 <Image
                   src={MOCK_POST.thumbnail}
                   alt={MOCK_POST.title}
@@ -425,12 +427,8 @@ function ClassicStylePreview({
                   sizes="100vw"
                   className="object-cover transition-transform duration-700 hover:scale-105"
                 />
-              ) : (
-                <div className="absolute inset-0 flex items-center justify-center">
-                  <FileText size={48} className="text-muted-foreground/40" />
-                </div>
-              )}
-            </div>
+              </div>
+            )}
 
             <div className="prose prose-zinc prose-lg max-w-none lg:max-w-[640px]">
               <div dangerouslySetInnerHTML={{ __html: MOCK_POST.content }} />
@@ -511,7 +509,7 @@ function ClassicStylePreview({
 }
 
 // Modern Style Preview - Extracted from ModernStyle
-function ModernStylePreview({ showRelated, showShare, showAuthor = true, showTags = true, showComments = true, showCommentLikes = true, showCommentReplies = true, brandColor = '#3b82f6', secondaryColor }: Omit<PostDetailPreviewProps, 'layoutStyle' | 'device' | 'quickContactEnabled' | 'quickContactTitle' | 'quickContactDescription' | 'quickContactShowPrice' | 'quickContactButtonText' | 'quickContactButtonLink'>) {
+function ModernStylePreview({ showRelated, showShare, showThumbnail = true, showAuthor = true, showTags = true, showComments = true, showCommentLikes = true, showCommentReplies = true, brandColor = '#3b82f6', secondaryColor }: Omit<PostDetailPreviewProps, 'layoutStyle' | 'device' | 'quickContactEnabled' | 'quickContactTitle' | 'quickContactDescription' | 'quickContactShowPrice' | 'quickContactButtonText' | 'quickContactButtonLink'>) {
   const readingTime = 5;
   const [isCopied] = React.useState(false);
   const visibleTags = showTags ? MOCK_TAGS : [];
@@ -600,8 +598,8 @@ function ModernStylePreview({ showRelated, showShare, showAuthor = true, showTag
           </section>
         </div>
 
-        <section className="relative overflow-hidden rounded-2xl bg-muted aspect-[16/9] md:aspect-[21/9] max-w-7xl mx-auto">
-          {MOCK_POST.thumbnail ? (
+        {showThumbnail && MOCK_POST.thumbnail && (
+          <section className="relative overflow-hidden rounded-2xl bg-muted aspect-[16/9] md:aspect-[21/9] max-w-7xl mx-auto">
             <Image
               src={MOCK_POST.thumbnail}
               alt={MOCK_POST.title}
@@ -609,12 +607,8 @@ function ModernStylePreview({ showRelated, showShare, showAuthor = true, showTag
               sizes="(max-width: 1024px) 100vw, 1024px"
               className="object-cover transition-transform duration-300 hover:scale-105"
             />
-          ) : (
-            <div className="absolute inset-0 flex items-center justify-center">
-              <FileText size={56} className="text-muted-foreground/40" />
-            </div>
-          )}
-        </section>
+          </section>
+        )}
 
         <article className="max-w-7xl mx-auto space-y-6">
           {MOCK_POST.excerpt && (
@@ -690,7 +684,7 @@ function ModernStylePreview({ showRelated, showShare, showAuthor = true, showTag
 }
 
 // Minimal Style Preview - Extracted from MinimalStyle
-function MinimalStylePreview({ showRelated, showShare, showAuthor = true, showTags = true, showComments = true, showCommentLikes = true, showCommentReplies = true, brandColor = '#3b82f6', secondaryColor }: Omit<PostDetailPreviewProps, 'layoutStyle' | 'device' | 'quickContactEnabled' | 'quickContactTitle' | 'quickContactDescription' | 'quickContactShowPrice' | 'quickContactButtonText' | 'quickContactButtonLink'>) {
+function MinimalStylePreview({ showRelated, showShare, showThumbnail = true, showAuthor = true, showTags = true, showComments = true, showCommentLikes = true, showCommentReplies = true, brandColor = '#3b82f6', secondaryColor }: Omit<PostDetailPreviewProps, 'layoutStyle' | 'device' | 'quickContactEnabled' | 'quickContactTitle' | 'quickContactDescription' | 'quickContactShowPrice' | 'quickContactButtonText' | 'quickContactButtonLink'>) {
   const [isCopied] = React.useState(false);
   const readingTime = 5;
   const visibleTags = showTags ? MOCK_TAGS : [];
@@ -699,9 +693,9 @@ function MinimalStylePreview({ showRelated, showShare, showAuthor = true, showTa
   return (
     <div className="min-h-screen bg-background text-foreground">
       <main className="pb-16">
-        <section className="relative w-full overflow-hidden bg-muted">
-          <div className="relative h-[clamp(220px,45vh,520px)] w-full">
-            {MOCK_POST.thumbnail ? (
+        {showThumbnail && MOCK_POST.thumbnail ? (
+          <section className="relative w-full overflow-hidden bg-muted">
+            <div className="relative h-[clamp(220px,45vh,520px)] w-full">
               <Image
                 src={MOCK_POST.thumbnail}
                 alt={MOCK_POST.title}
@@ -709,79 +703,134 @@ function MinimalStylePreview({ showRelated, showShare, showAuthor = true, showTa
                 sizes="100vw"
                 className="object-cover"
               />
-            ) : (
-              <div className="absolute inset-0 flex items-center justify-center">
-                <FileText size={56} className="text-muted-foreground/40" />
-              </div>
-            )}
-            <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-black/10 to-transparent" />
-            <div className="absolute inset-x-0 top-0 z-10">
-              <div className="container max-w-6xl mx-auto px-4 md:px-6">
-                <div className="flex items-center justify-between pt-4">
-                  <div className="group inline-flex h-11 items-center gap-2 rounded-md border border-white/30 bg-white/15 px-3 text-sm font-medium text-white backdrop-blur-sm transition-colors hover:bg-white/20">
-                    <ArrowLeft className="h-4 w-4 transition-transform duration-200 group-hover:-translate-x-1" />
-                    Danh sách
-                  </div>
+              <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-black/10 to-transparent" />
+              <div className="absolute inset-x-0 top-0 z-10">
+                <div className="container max-w-6xl mx-auto px-4 md:px-6">
+                  <div className="flex items-center justify-between pt-4">
+                    <div className="group inline-flex h-11 items-center gap-2 rounded-md border border-white/30 bg-white/15 px-3 text-sm font-medium text-white backdrop-blur-sm transition-colors hover:bg-white/20">
+                      <ArrowLeft className="h-4 w-4 transition-transform duration-200 group-hover:-translate-x-1" />
+                      Danh sách
+                    </div>
 
-                  {showShare && (
-                    <button
-                      type="button"
-                      className="h-11 w-11 inline-flex items-center justify-center border-white/30 bg-white/15 text-white hover:bg-white/20 rounded-md"
-                      aria-label="Chia sẻ"
+                    {showShare && (
+                      <button
+                        type="button"
+                        className="h-11 w-11 inline-flex items-center justify-center border-white/30 bg-white/15 text-white hover:bg-white/20 rounded-md"
+                        aria-label="Chia sẻ"
+                      >
+                        {isCopied ? <Check className="h-4 w-4" /> : <Share2 className="h-4 w-4" />}
+                      </button>
+                    )}
+                  </div>
+                </div>
+              </div>
+              <div className="container max-w-6xl mx-auto h-full px-4 md:px-6 flex items-end pb-6 md:pb-8">
+                <div className="w-full max-w-3xl border-border/70 bg-background/90 shadow-sm backdrop-blur-sm rounded-lg">
+                  <div className="space-y-3 p-4 md:p-6">
+                    <span className="text-xs font-semibold uppercase tracking-[0.2em]" style={{ color: accentColor }}>
+                      {MOCK_POST.categoryName}
+                    </span>
+                    <h1 className="text-[clamp(1.6rem,4vw,2.9rem)] font-semibold leading-[1.2] text-foreground" style={{ color: brandColor }}>
+                      {MOCK_POST.title}
+                    </h1>
+                    {visibleTags.length > 0 && (
+                      <div className="flex flex-wrap gap-2">
+                        {visibleTags.map((tag) => (
+                          <span
+                            key={tag}
+                            className="inline-flex items-center rounded-full border px-2.5 py-0.5 text-[11px] font-semibold"
+                            style={{ borderColor: `${accentColor}20`, color: accentColor }}
+                          >
+                            {tag}
+                          </span>
+                        ))}
+                      </div>
+                    )}
+                    {showAuthor && (
+                      <div className="flex flex-wrap items-center gap-4 text-xs text-muted-foreground">
+                        <div className="flex items-center gap-2">
+                          <User className="h-3.5 w-3.5" />
+                          <span>{MOCK_POST.authorName}</span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <Calendar className="h-4 w-4" />
+                          <time>{new Date(MOCK_POST.publishedAt).toLocaleDateString('vi-VN')}</time>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <Clock className="h-4 w-4" />
+                          <span>{readingTime} phút đọc</span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <Eye className="h-4 w-4" />
+                          <span>{MOCK_POST.views.toLocaleString()} lượt xem</span>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+            </div>
+          </section>
+        ) : (
+          <section className="container max-w-3xl mx-auto px-4 md:px-6 pt-6 md:pt-10">
+            <div className="space-y-3">
+              <div className="flex items-center justify-between gap-3">
+                <div className="group inline-flex h-11 items-center gap-2 rounded-md border px-3 text-sm font-medium transition-colors hover:bg-muted/60">
+                  <ArrowLeft className="h-4 w-4 transition-transform duration-200 group-hover:-translate-x-1" />
+                  Danh sách
+                </div>
+                {showShare && (
+                  <button
+                    type="button"
+                    className="h-11 w-11 inline-flex items-center justify-center rounded-md border hover:bg-muted/60"
+                    aria-label="Chia sẻ"
+                  >
+                    {isCopied ? <Check className="h-4 w-4" /> : <Share2 className="h-4 w-4" />}
+                  </button>
+                )}
+              </div>
+              <span className="text-xs font-semibold uppercase tracking-[0.2em]" style={{ color: accentColor }}>
+                {MOCK_POST.categoryName}
+              </span>
+              <h1 className="text-[clamp(1.6rem,4vw,2.9rem)] font-semibold leading-[1.2] text-foreground" style={{ color: brandColor }}>
+                {MOCK_POST.title}
+              </h1>
+              {visibleTags.length > 0 && (
+                <div className="flex flex-wrap gap-2">
+                  {visibleTags.map((tag) => (
+                    <span
+                      key={tag}
+                      className="inline-flex items-center rounded-full border px-2.5 py-0.5 text-[11px] font-semibold"
+                      style={{ borderColor: `${accentColor}20`, color: accentColor }}
                     >
-                      {isCopied ? <Check className="h-4 w-4" /> : <Share2 className="h-4 w-4" />}
-                    </button>
-                  )}
+                      {tag}
+                    </span>
+                  ))}
                 </div>
-              </div>
-            </div>
-            <div className="container max-w-6xl mx-auto h-full px-4 md:px-6 flex items-end pb-6 md:pb-8">
-              <div className="w-full max-w-3xl border-border/70 bg-background/90 shadow-sm backdrop-blur-sm rounded-lg">
-                <div className="space-y-3 p-4 md:p-6">
-                  <span className="text-xs font-semibold uppercase tracking-[0.2em]" style={{ color: accentColor }}>
-                    {MOCK_POST.categoryName}
-                  </span>
-                  <h1 className="text-[clamp(1.6rem,4vw,2.9rem)] font-semibold leading-[1.2] text-foreground" style={{ color: brandColor }}>
-                    {MOCK_POST.title}
-                  </h1>
-                  {visibleTags.length > 0 && (
-                    <div className="flex flex-wrap gap-2">
-                      {visibleTags.map((tag) => (
-                        <span
-                          key={tag}
-                          className="inline-flex items-center rounded-full border px-2.5 py-0.5 text-[11px] font-semibold"
-                          style={{ borderColor: `${accentColor}20`, color: accentColor }}
-                        >
-                          {tag}
-                        </span>
-                      ))}
-                    </div>
-                  )}
-                  {showAuthor && (
-                    <div className="flex flex-wrap items-center gap-4 text-xs text-muted-foreground">
-                      <div className="flex items-center gap-2">
-                        <User className="h-3.5 w-3.5" />
-                        <span>{MOCK_POST.authorName}</span>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <Calendar className="h-4 w-4" />
-                        <time>{new Date(MOCK_POST.publishedAt).toLocaleDateString('vi-VN')}</time>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <Clock className="h-4 w-4" />
-                        <span>{readingTime} phút đọc</span>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <Eye className="h-4 w-4" />
-                        <span>{MOCK_POST.views.toLocaleString()} lượt xem</span>
-                      </div>
-                    </div>
-                  )}
+              )}
+              {showAuthor && (
+                <div className="flex flex-wrap items-center gap-4 text-xs text-muted-foreground">
+                  <div className="flex items-center gap-2">
+                    <User className="h-3.5 w-3.5" />
+                    <span>{MOCK_POST.authorName}</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Calendar className="h-4 w-4" />
+                    <time>{new Date(MOCK_POST.publishedAt).toLocaleDateString('vi-VN')}</time>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Clock className="h-4 w-4" />
+                    <span>{readingTime} phút đọc</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Eye className="h-4 w-4" />
+                    <span>{MOCK_POST.views.toLocaleString()} lượt xem</span>
+                  </div>
                 </div>
-              </div>
+              )}
             </div>
-          </div>
-        </section>
+          </section>
+        )}
 
         <section className="container max-w-3xl mx-auto px-4 md:px-6 py-8 md:py-12 space-y-6">
           {MOCK_POST.excerpt && (
@@ -864,13 +913,14 @@ export function PostDetailPreview({
   showCommentReplies = true,
   showRelated,
   showShare,
+  showThumbnail = true,
   device = 'desktop',
   brandColor = '#3b82f6',
   secondaryColor,
   colorMode = 'single',
 }: PostDetailPreviewProps) {
   const resolvedSecondary = resolveSecondary(brandColor, secondaryColor, colorMode);
-  const props = { showAuthor, showTags, showComments, showCommentLikes, showCommentReplies, showRelated, showShare, brandColor, secondaryColor: resolvedSecondary, device };
+  const props = { showAuthor, showTags, showComments, showCommentLikes, showCommentReplies, showRelated, showShare, showThumbnail, brandColor, secondaryColor: resolvedSecondary, device };
 
   return (
     <div className="w-full">

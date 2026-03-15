@@ -38,6 +38,7 @@ type PostDetailLayoutConfig = {
   showCommentReplies: boolean;
   showRelated: boolean;
   showTags: boolean;
+  showThumbnail: boolean;
 };
 
 type PostsDetailConfig = PostDetailLayoutConfig & {
@@ -53,6 +54,7 @@ const DEFAULT_POST_DETAIL_LAYOUTS: Record<PostDetailLayoutStyle, PostDetailLayou
     showCommentReplies: true,
     showRelated: true,
     showTags: true,
+    showThumbnail: true,
   },
   modern: {
     showAuthor: true,
@@ -62,6 +64,7 @@ const DEFAULT_POST_DETAIL_LAYOUTS: Record<PostDetailLayoutStyle, PostDetailLayou
     showCommentReplies: true,
     showRelated: true,
     showTags: true,
+    showThumbnail: true,
   },
   minimal: {
     showAuthor: false,
@@ -71,6 +74,7 @@ const DEFAULT_POST_DETAIL_LAYOUTS: Record<PostDetailLayoutStyle, PostDetailLayou
     showCommentReplies: true,
     showRelated: true,
     showTags: true,
+    showThumbnail: true,
   },
 };
 

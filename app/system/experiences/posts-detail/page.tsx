@@ -46,6 +46,7 @@ type ClassicLayoutConfig = {
   showCommentLikes: boolean;
   showCommentReplies: boolean;
   showRelated: boolean;
+  showThumbnail: boolean;
 };
 
 type ModernLayoutConfig = {
@@ -56,6 +57,7 @@ type ModernLayoutConfig = {
   showCommentLikes: boolean;
   showCommentReplies: boolean;
   showRelated: boolean;
+  showThumbnail: boolean;
 };
 
 type MinimalLayoutConfig = {
@@ -66,6 +68,7 @@ type MinimalLayoutConfig = {
   showCommentLikes: boolean;
   showCommentReplies: boolean;
   showRelated: boolean;
+  showThumbnail: boolean;
 };
 
 const EXPERIENCE_KEY = 'posts_detail_ui';
@@ -83,9 +86,9 @@ const LAYOUT_STYLES: LayoutOption<DetailLayoutStyle>[] = [
 const DEFAULT_CONFIG: PostDetailExperienceConfig = {
   layoutStyle: 'classic',
   layouts: {
-    classic: { showAuthor: true, showTags: true, showShare: true, showComments: true, showCommentLikes: true, showCommentReplies: true, showRelated: true },
-    modern: { showAuthor: true, showTags: true, showShare: true, showComments: true, showCommentLikes: true, showCommentReplies: true, showRelated: true },
-    minimal: { showAuthor: false, showTags: true, showShare: true, showComments: true, showCommentLikes: true, showCommentReplies: true, showRelated: true },
+    classic: { showAuthor: true, showTags: true, showShare: true, showComments: true, showCommentLikes: true, showCommentReplies: true, showRelated: true, showThumbnail: true },
+    modern: { showAuthor: true, showTags: true, showShare: true, showComments: true, showCommentLikes: true, showCommentReplies: true, showRelated: true, showThumbnail: true },
+    minimal: { showAuthor: false, showTags: true, showShare: true, showComments: true, showCommentLikes: true, showCommentReplies: true, showRelated: true, showThumbnail: true },
   },
 };
 
@@ -301,6 +304,12 @@ export default function PostDetailExperiencePage() {
               onChange={(v) => updateLayoutConfig('showShare', v)} 
               accentColor={brandColor} 
             />
+            <ToggleRow
+              label="Ảnh đại diện chi tiết"
+              checked={currentLayoutConfig.showThumbnail}
+              onChange={(v) => updateLayoutConfig('showThumbnail', v)}
+              accentColor={brandColor}
+            />
             <ToggleRow 
               label="Bài viết liên quan" 
               checked={currentLayoutConfig.showRelated} 
@@ -426,6 +435,7 @@ export default function PostDetailExperiencePage() {
                 showTags={currentLayoutConfig.showTags && canUseTags}
                 showRelated={currentLayoutConfig.showRelated}
                 showShare={currentLayoutConfig.showShare}
+                showThumbnail={currentLayoutConfig.showThumbnail}
                 showComments={currentLayoutConfig.showComments && canUseComments}
                 showCommentLikes={currentLayoutConfig.showCommentLikes && canUseCommentLikes}
                 showCommentReplies={currentLayoutConfig.showCommentReplies && canUseCommentReplies}
