@@ -426,13 +426,13 @@ export const GalleryPreview = ({ items, brandColor, secondary, mode, harmony, se
       <div
         className={cn(
           'grid gap-4 rounded-lg border p-2',
-          device === 'mobile' ? 'grid-cols-1 auto-rows-[200px]' : 'grid-cols-1 md:grid-cols-3 auto-rows-[250px] md:auto-rows-[300px]',
+          device === 'mobile' ? 'grid-cols-3 auto-rows-[110px]' : 'grid-cols-1 md:grid-cols-3 auto-rows-[250px] md:auto-rows-[300px]',
         )}
         style={{ backgroundColor: colors.neutralBackground, borderColor: colors.neutralBorder }}
       >
         {items.map((photo, i) => {
           const isLarge = i % 4 === 0 || i % 4 === 3;
-          const colSpan = device !== 'mobile' && isLarge ? 'md:col-span-2' : 'md:col-span-1';
+          const colSpan = isLarge ? 'col-span-2 md:col-span-2' : 'col-span-1 md:col-span-1';
 
           return (
             <div
