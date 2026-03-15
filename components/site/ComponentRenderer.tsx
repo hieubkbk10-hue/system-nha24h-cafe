@@ -551,7 +551,7 @@ function HeroSection({
 
   const renderHeroSlideContain = (
     slide: { image?: string },
-    options?: { overlay?: React.ReactNode; blur?: number }
+    options?: { overlay?: React.ReactNode; blur?: number; fit?: 'contain' | 'cover' }
   ) => (
     <div className="w-full h-full relative">
       <div
@@ -563,7 +563,14 @@ function HeroSection({
           filter: `blur(${options?.blur ?? 25}px)`,
         }}
       />
-      <SiteImage src={slide.image ?? ''} alt="" className="relative w-full h-full object-contain z-10" />
+      <SiteImage
+        src={slide.image ?? ''}
+        alt=""
+        className={cn(
+          'relative w-full h-full z-10',
+          options?.fit === 'cover' ? 'object-cover' : 'object-contain'
+        )}
+      />
       {options?.overlay}
     </div>
   );
@@ -578,6 +585,7 @@ function HeroSection({
             <div key={idx} className={`absolute inset-0 transition-opacity duration-1000 ${idx === currentSlide ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}>
               {slide.image ? (
                 renderHeroSlideContain(slide, {
+                  fit: 'cover',
                   overlay: showFullscreenContent ? (
                     <div className="absolute inset-0 bg-gradient-to-r from-black/70 via-black/40 to-transparent z-20" />
                   ) : null,

@@ -117,6 +117,7 @@ export const HeroPreview = ({
     options?: {
       blur?: number;
       overlay?: React.ReactNode;
+      fit?: 'contain' | 'cover';
     }
   ) => (
     <div className="w-full h-full relative">
@@ -132,7 +133,10 @@ export const HeroPreview = ({
       <PreviewImage
         src={slide.image}
         alt=""
-        className="relative w-full h-full object-contain z-10"
+        className={cn(
+          "relative w-full h-full z-10",
+          options?.fit === 'cover' ? 'object-cover' : 'object-contain'
+        )}
       />
       {options?.overlay}
     </div>
@@ -382,6 +386,7 @@ export const HeroPreview = ({
                 <div key={slide.id} className={cn("absolute inset-0 transition-opacity duration-1000", idx === currentSlide ? "opacity-100" : "opacity-0 pointer-events-none")}>
                   {slide.image ? (
                     renderSlideWithContain(slide, {
+                      fit: 'cover',
                       overlay: showFullscreenContent ? (
                         <div className="absolute inset-0 bg-gradient-to-r from-black/70 via-black/40 to-transparent z-20" />
                       ) : null,
