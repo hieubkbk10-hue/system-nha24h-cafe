@@ -341,6 +341,7 @@ function HeroSection({
   const style = (config.style as HeroStyle) || 'slider';
   const content = (config.content as HeroContent) || {};
   const [currentSlide, setCurrentSlide] = React.useState(0);
+  const touchStartX = React.useRef<number | null>(null);
   const primaryHref = content.primaryButtonLink || slides[currentSlide]?.link || '#';
   const secondaryHref = content.secondaryButtonLink || '#';
   const sliderColors = getSliderColors(brandColor, secondary, mode);
@@ -384,11 +385,41 @@ function HeroSection({
     </div>
   );
 
+  const handleTouchStart = (event: React.TouchEvent<HTMLDivElement>) => {
+    touchStartX.current = event.touches[0]?.clientX ?? null;
+  };
+
+  const handleTouchEnd = (event: React.TouchEvent<HTMLDivElement>) => {
+    const startX = touchStartX.current;
+    const endX = event.changedTouches[0]?.clientX;
+    touchStartX.current = null;
+
+    if (slides.length <= 1 || startX == null || endX == null) {
+      return;
+    }
+
+    const deltaX = endX - startX;
+    if (Math.abs(deltaX) < 40) {
+      return;
+    }
+
+    if (deltaX < 0) {
+      setCurrentSlide(prev => (prev + 1) % slides.length);
+      return;
+    }
+
+    setCurrentSlide(prev => prev === 0 ? slides.length - 1 : prev - 1);
+  };
+
   // Style 1: Slider
   if (style === 'slider') {
     return (
       <section className="relative w-full bg-slate-900 overflow-hidden">
-        <div className="relative w-full aspect-[16/9] md:aspect-[21/9] max-h-[400px] md:max-h-[550px]">
+        <div
+          className="relative w-full aspect-[16/9] md:aspect-[21/9] max-h-[400px] md:max-h-[550px]"
+          onTouchStart={handleTouchStart}
+          onTouchEnd={handleTouchEnd}
+        >
           {slides.map((slide, idx) => (
             <div
               key={idx}
@@ -400,10 +431,10 @@ function HeroSection({
           ))}
           {slides.length > 1 && (
             <>
-              <button onClick={() =>{  setCurrentSlide(prev => prev === 0 ? slides.length - 1 : prev - 1); }} className="absolute left-4 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full shadow-lg flex items-center justify-center transition-all z-20 border-2" style={{ backgroundColor: sliderColors.navButtonBg, borderColor: sliderColors.navButtonBorderColor, boxShadow: `0 0 0 2px ${sliderColors.navButtonOuterRing}` }}>
+              <button onClick={() =>{  setCurrentSlide(prev => prev === 0 ? slides.length - 1 : prev - 1); }} className="absolute left-4 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full shadow-lg hidden md:flex items-center justify-center transition-all z-20 border-2" style={{ backgroundColor: sliderColors.navButtonBg, borderColor: sliderColors.navButtonBorderColor, boxShadow: `0 0 0 2px ${sliderColors.navButtonOuterRing}` }}>
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" style={{ color: sliderColors.navButtonIconColor }}><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" /></svg>
               </button>
-              <button onClick={() =>{  setCurrentSlide(prev => (prev + 1) % slides.length); }} className="absolute right-4 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full shadow-lg flex items-center justify-center transition-all z-20 border-2" style={{ backgroundColor: sliderColors.navButtonBgHover, borderColor: sliderColors.navButtonBorderColor, boxShadow: `0 0 0 2px ${sliderColors.navButtonOuterRing}` }}>
+              <button onClick={() =>{  setCurrentSlide(prev => (prev + 1) % slides.length); }} className="absolute right-4 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full shadow-lg hidden md:flex items-center justify-center transition-all z-20 border-2" style={{ backgroundColor: sliderColors.navButtonBgHover, borderColor: sliderColors.navButtonBorderColor, boxShadow: `0 0 0 2px ${sliderColors.navButtonOuterRing}` }}>
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" style={{ color: sliderColors.navButtonIconColor }}><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" /></svg>
               </button>
               <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2 z-20">
