@@ -8,14 +8,16 @@ import { api } from '@/convex/_generated/api';
 import type { Id } from '@/convex/_generated/dataModel';
 import { GripVertical, Image as ImageIcon, Link, Loader2, Plus, Trash2, Upload } from 'lucide-react';
 import { toast } from 'sonner';
-import { Button, Input, cn } from './ui';
-import { prepareImageForUpload, validateImageFile } from '@/lib/image/uploadPipeline';
+import { Button, Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, Input, cn } from './ui';
+import { prepareImageForUpload, type SquareCropSelection, validateImageFile } from '@/lib/image/uploadPipeline';
 export interface ImageItem {
   id: string | number;
   url: string;
   storageId?: string;
   [key: string]: unknown; // Allow extra fields like link, title, etc.
 }
+
+const CROP_VIEW_SIZE = 320;
 
 interface MultiImageUploaderProps<T extends ImageItem> {
   items: T[];
@@ -36,6 +38,7 @@ interface MultiImageUploaderProps<T extends ImageItem> {
   addButtonText?: string;
   emptyText?: string;
   layout?: 'horizontal' | 'vertical'; // Vertical: image on top, fields below (better for cards)
+  enableSquareCrop?: boolean;
 }
 
 export function MultiImageUploader<T extends ImageItem>({
@@ -53,6 +56,7 @@ export function MultiImageUploader<T extends ImageItem>({
   addButtonText = 'Thêm ảnh',
   emptyText = 'Chưa có ảnh nào',
   layout = 'horizontal',
+  enableSquareCrop = false,
 }: MultiImageUploaderProps<T>) {
   const itemsRef = useRef(items);
   const [uploadingIds, setUploadingIds] = useState<Set<string | number>>(new Set());
@@ -62,6 +66,13 @@ export function MultiImageUploader<T extends ImageItem>({
   const [dragOverItemId, setDragOverItemId] = useState<string | number | null>(null);
   const [draggedItemId, setDraggedItemId] = useState<string | number | null>(null);
   const [fileDragOverItemId, setFileDragOverItemId] = useState<string | number | null>(null); // For file drops on specific items
+  const [cropItemId, setCropItemId] = useState<string | number | null>(null);
+  const [cropFile, setCropFile] = useState<File | null>(null);
+  const [cropPreviewUrl, setCropPreviewUrl] = useState<string | null>(null);
+  const [cropScale, setCropScale] = useState(1);
+  const [cropXPercent, setCropXPercent] = useState(0.5);
+  const [cropYPercent, setCropYPercent] = useState(0.5);
+  const [sourceDimensions, setSourceDimensions] = useState<{ width: number; height: number } | null>(null);
   const inputRefs = useRef<Map<string | number, HTMLInputElement>>(new Map());
   const dropZoneRef = useRef<HTMLDivElement>(null);
 
@@ -88,6 +99,14 @@ export function MultiImageUploader<T extends ImageItem>({
     itemsRef.current = items;
   }, [items]);
 
+  useEffect(() => {
+    return () => {
+      if (cropPreviewUrl) {
+        URL.revokeObjectURL(cropPreviewUrl);
+      }
+    };
+  }, [cropPreviewUrl]);
+
   const aspectClasses = {
     auto: 'min-h-[100px]',
     banner: 'aspect-[3/1]',
@@ -102,7 +121,33 @@ export function MultiImageUploader<T extends ImageItem>({
     4: 'grid-cols-2 sm:grid-cols-3 lg:grid-cols-4',
   };
 
-  const handleFileUpload = useCallback(async (itemId: string | number, file: File) => {
+  const resetCropState = useCallback(() => {
+    if (cropPreviewUrl) {
+      URL.revokeObjectURL(cropPreviewUrl);
+    }
+    setCropItemId(null);
+    setCropFile(null);
+    setCropPreviewUrl(null);
+    setSourceDimensions(null);
+    setCropScale(1);
+    setCropXPercent(0.5);
+    setCropYPercent(0.5);
+  }, [cropPreviewUrl]);
+
+  const openCropper = useCallback((itemId: string | number, file: File) => {
+    if (cropPreviewUrl) {
+      URL.revokeObjectURL(cropPreviewUrl);
+    }
+    setCropItemId(itemId);
+    setCropFile(file);
+    setCropPreviewUrl(URL.createObjectURL(file));
+    setSourceDimensions(null);
+    setCropScale(1);
+    setCropXPercent(0.5);
+    setCropYPercent(0.5);
+  }, [cropPreviewUrl]);
+
+  const handleFileUpload = useCallback(async (itemId: string | number, file: File, crop?: SquareCropSelection) => {
     const validationError = validateImageFile(file, 5);
     if (validationError) {
       toast.error(validationError);
@@ -112,7 +157,7 @@ export function MultiImageUploader<T extends ImageItem>({
     setUploadingIds(prev => new Set(prev).add(itemId));
 
     try {
-      const prepared = await prepareImageForUpload(file);
+      const prepared = await prepareImageForUpload(file, crop ? { crop } : undefined);
       const uploadUrl = await generateUploadUrl();
 
       const response = await fetch(uploadUrl, {
@@ -155,33 +200,67 @@ export function MultiImageUploader<T extends ImageItem>({
     }
   }, [generateUploadUrl, saveImage, folder, imageKey, onChange, clearBroken]);
 
+  const handleSelectedFile = useCallback((itemId: string | number, file: File) => {
+    const validationError = validateImageFile(file, 5);
+    if (validationError) {
+      toast.error(validationError);
+      return;
+    }
+
+    if (enableSquareCrop) {
+      openCropper(itemId, file);
+      return;
+    }
+
+    void handleFileUpload(itemId, file);
+  }, [enableSquareCrop, openCropper, handleFileUpload]);
+
   const handleMultipleFiles = useCallback(async (files: FileList) => {
     const filesToUpload = [...files];
-    
-    // If there's exactly 1 item with no image, upload first file to it
+    if (filesToUpload.length === 0) {
+      return;
+    }
+
+    if (enableSquareCrop) {
+      if (filesToUpload.length > 1) {
+        toast.message('Đang bật cắt ảnh 1:1: vui lòng chọn từng ảnh để cắt chính xác.');
+      }
+      const targetItem = items.find(item => !item[imageKey]);
+      if (targetItem) {
+        handleSelectedFile(targetItem.id, filesToUpload[0]);
+        return;
+      }
+
+      if (items.length >= maxItems) {
+        toast.error(`Đã đạt giới hạn ${maxItems} ảnh`);
+        return;
+      }
+
+      const newItem = {
+        id: `new-${Date.now()}-${Math.random().toString(36).slice(2, 4)}`,
+        [imageKey]: '',
+      } as unknown as T;
+      onChange([...items, newItem]);
+      handleSelectedFile(newItem.id, filesToUpload[0]);
+      return;
+    }
+
     const firstEmptyItem = items.find(item => !item[imageKey]);
-    if (firstEmptyItem && filesToUpload.length > 0) {
-      // Start uploading first file to empty item (don't await)
+    if (firstEmptyItem) {
       const firstUploadPromise = handleFileUpload(firstEmptyItem.id, filesToUpload[0]);
-      
-      // Upload remaining files as new items in parallel
       const remainingFiles = filesToUpload.slice(1);
       if (remainingFiles.length > 0) {
         const remainingSlots = maxItems - items.length;
         const filesToAdd = remainingFiles.slice(0, remainingSlots);
-        
+
         if (filesToAdd.length > 0) {
           const newItems: T[] = filesToAdd.map((_, index) => ({
             id: `new-${Date.now()}-${index}-${Math.random().toString(36).slice(2, 4)}`,
             [imageKey]: '',
           } as unknown as T));
+          onChange([...items, ...newItems]);
 
-          const updatedItems = [...items, ...newItems];
-          onChange(updatedItems);
-
-          // Upload all in parallel using Promise.all
-          const uploadPromises = filesToAdd.map( async (file, i) => handleFileUpload(newItems[i].id, file));
-          await Promise.all([firstUploadPromise, ...uploadPromises]);
+          await Promise.all([firstUploadPromise, ...filesToAdd.map(async (file, i) => handleFileUpload(newItems[i].id, file))]);
           return;
         }
       }
@@ -189,7 +268,6 @@ export function MultiImageUploader<T extends ImageItem>({
       return;
     }
 
-    // Normal flow: create new items for all files
     const remainingSlots = maxItems - items.length;
     const filesToAdd = filesToUpload.slice(0, remainingSlots);
 
@@ -207,12 +285,9 @@ export function MultiImageUploader<T extends ImageItem>({
       [imageKey]: '',
     } as unknown as T));
 
-    const updatedItems = [...items, ...newItems];
-    onChange(updatedItems);
-
-    // Upload all files in parallel using Promise.all
-    await Promise.all(filesToAdd.map( async (file, i) => handleFileUpload(newItems[i].id, file)));
-  }, [items, maxItems, imageKey, onChange, handleFileUpload]);
+    onChange([...items, ...newItems]);
+    await Promise.all(filesToAdd.map(async (file, i) => handleFileUpload(newItems[i].id, file)));
+  }, [items, maxItems, imageKey, onChange, handleFileUpload, enableSquareCrop, handleSelectedFile]);
 
   const handleDragEnter = useCallback((e: DragEvent) => {
     e.preventDefault();
@@ -250,12 +325,12 @@ export function MultiImageUploader<T extends ImageItem>({
     
     if (itemId !== undefined) {
       // Drop on specific item
-      if (files[0]) {void handleFileUpload(itemId, files[0]);}
+      if (files[0]) {handleSelectedFile(itemId, files[0]);}
     } else {
       // Drop on container - add new items
       void handleMultipleFiles(files);
     }
-  }, [handleFileUpload, handleMultipleFiles]);
+  }, [handleSelectedFile, handleMultipleFiles]);
 
   // File drag handlers for individual items
   const handleItemFileDragEnter = useCallback((e: React.DragEvent, itemId: string | number) => {
@@ -289,9 +364,9 @@ export function MultiImageUploader<T extends ImageItem>({
     
     const {files} = e.dataTransfer;
     if (files.length > 0 && files[0]) {
-      void handleFileUpload(itemId, files[0]);
+      handleSelectedFile(itemId, files[0]);
     }
-  }, [handleFileUpload]);
+  }, [handleSelectedFile]);
 
   const handleUrlChange = useCallback((itemId: string | number, url: string) => {
     onChange(items.map(item => 
@@ -393,8 +468,37 @@ export function MultiImageUploader<T extends ImageItem>({
   }, []);
 
   const inputId = `multi-image-input-${Math.random().toString(36).slice(2, 9)}`;
+  const isCropOpen = Boolean(cropItemId !== null && cropFile && cropPreviewUrl);
+  const renderedSize = sourceDimensions
+    ? {
+        width: sourceDimensions.width * Math.max(CROP_VIEW_SIZE / sourceDimensions.width, CROP_VIEW_SIZE / sourceDimensions.height) * cropScale,
+        height: sourceDimensions.height * Math.max(CROP_VIEW_SIZE / sourceDimensions.width, CROP_VIEW_SIZE / sourceDimensions.height) * cropScale,
+      }
+    : null;
+  const previewStyle = renderedSize
+    ? {
+        width: renderedSize.width,
+        height: renderedSize.height,
+        left: -(Math.max(0, renderedSize.width - CROP_VIEW_SIZE) * cropXPercent),
+        top: -(Math.max(0, renderedSize.height - CROP_VIEW_SIZE) * cropYPercent),
+      }
+    : undefined;
+
+  const handleConfirmCrop = async () => {
+    if (cropItemId === null || !cropFile) {
+      return;
+    }
+
+    await handleFileUpload(cropItemId, cropFile, {
+      scale: cropScale,
+      xPercent: cropXPercent,
+      yPercent: cropYPercent,
+    });
+    resetCropState();
+  };
 
   return (
+    <>
     <div 
       ref={dropZoneRef}
       className={cn('space-y-4', className)}
@@ -522,7 +626,13 @@ export function MultiImageUploader<T extends ImageItem>({
                       ref={(el) => { if (el) {inputRefs.current.set(item.id, el);} }}
                       type="file"
                       accept="image/*"
-                      onChange={(e) => e.target.files?.[0] && void handleFileUpload(item.id, e.target.files[0])}
+                      onChange={(e) => {
+                        const file = e.target.files?.[0];
+                        if (file) {
+                          handleSelectedFile(item.id, file);
+                        }
+                        e.target.value = '';
+                      }}
                       className="hidden"
                     />
                   </div>
@@ -644,7 +754,13 @@ export function MultiImageUploader<T extends ImageItem>({
                       ref={(el) => { if (el) {inputRefs.current.set(item.id, el);} }}
                       type="file"
                       accept="image/*"
-                      onChange={(e) => e.target.files?.[0] && void handleFileUpload(item.id, e.target.files[0])}
+                      onChange={(e) => {
+                        const file = e.target.files?.[0];
+                        if (file) {
+                          handleSelectedFile(item.id, file);
+                        }
+                        e.target.value = '';
+                      }}
                       className="hidden"
                     />
                   </div>
@@ -720,5 +836,82 @@ export function MultiImageUploader<T extends ImageItem>({
         </Button>
       )}
     </div>
+
+    <Dialog open={isCropOpen} onOpenChange={(open) => { if (!open) {resetCropState();} }}>
+      <DialogContent className="max-w-[92vw] w-[560px]">
+        <DialogHeader>
+          <DialogTitle>Cắt ảnh vuông 1:1</DialogTitle>
+          <DialogDescription>Điều chỉnh vùng cắt trước khi tải lên.</DialogDescription>
+        </DialogHeader>
+
+        <div className="space-y-4">
+          <div className="mx-auto relative h-[320px] w-[320px] overflow-hidden rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-100 dark:bg-slate-800">
+            {cropPreviewUrl && (
+              <img
+                src={cropPreviewUrl}
+                alt="Crop preview"
+                className="absolute max-w-none"
+                style={previewStyle}
+                onLoad={(event) => {
+                  const image = event.currentTarget;
+                  setSourceDimensions({
+                    width: image.naturalWidth,
+                    height: image.naturalHeight,
+                  });
+                }}
+              />
+            )}
+          </div>
+
+          <div className="space-y-3">
+            <label className="block text-sm text-slate-600 dark:text-slate-300">
+              Zoom ({cropScale.toFixed(1)}x)
+              <input
+                type="range"
+                min={1}
+                max={3}
+                step={0.1}
+                value={cropScale}
+                onChange={(e) => setCropScale(Number(e.target.value))}
+                className="mt-1 w-full"
+              />
+            </label>
+            <label className="block text-sm text-slate-600 dark:text-slate-300">
+              Dịch ngang
+              <input
+                type="range"
+                min={0}
+                max={1}
+                step={0.01}
+                value={cropXPercent}
+                onChange={(e) => setCropXPercent(Number(e.target.value))}
+                className="mt-1 w-full"
+              />
+            </label>
+            <label className="block text-sm text-slate-600 dark:text-slate-300">
+              Dịch dọc
+              <input
+                type="range"
+                min={0}
+                max={1}
+                step={0.01}
+                value={cropYPercent}
+                onChange={(e) => setCropYPercent(Number(e.target.value))}
+                className="mt-1 w-full"
+              />
+            </label>
+          </div>
+        </div>
+
+        <DialogFooter>
+          <Button type="button" variant="outline" onClick={resetCropState} disabled={uploadingIds.size > 0}>Hủy</Button>
+          <Button type="button" variant="accent" onClick={() => { void handleConfirmCrop(); }} disabled={uploadingIds.size > 0 || !sourceDimensions}>
+            {uploadingIds.size > 0 && <Loader2 size={16} className="animate-spin mr-2" />}
+            Dùng ảnh đã cắt
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+    </>
   );
 }

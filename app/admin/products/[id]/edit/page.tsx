@@ -863,6 +863,7 @@ function ProductEditContent({ params }: { params: Promise<{ id: string }> }) {
                   minItems={0}
                   maxItems={20}
                   aspectRatio="square"
+                  enableSquareCrop={enableImageCrop}
                   columns={2}
                   addButtonText="Thêm ảnh"
                   emptyText="Chưa có ảnh trong thư viện"
