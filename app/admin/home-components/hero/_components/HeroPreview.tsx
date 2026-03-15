@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useRef, useState } from 'react';
 import { ChevronLeft, ChevronRight, Image as ImageIcon } from 'lucide-react';
 import { getBrandColors } from '@/lib/utils/colors';
 import { cn } from '../../../components/ui';
@@ -44,6 +44,7 @@ export const HeroPreview = ({
 }) => {
   const { device, setDevice } = usePreviewDevice();
   const [currentSlide, setCurrentSlide] = useState(0);
+  const touchStartX = useRef<number | null>(null);
   const previewStyle = selectedStyle ?? 'slider';
   const setPreviewStyle = (style: string) => onStyleChange?.(style as HeroStyle);
   const modeLabel = mode === 'dual' ? '2 màu' : '1 màu';
@@ -66,6 +67,30 @@ export const HeroPreview = ({
 
   const nextSlide = () =>{  setCurrentSlide((prev) => (prev + 1) % slides.length); };
   const prevSlide = () =>{  setCurrentSlide((prev) => (prev - 1 + slides.length) % slides.length); };
+  const handleTouchStart = (event: React.TouchEvent<HTMLDivElement>) => {
+    touchStartX.current = event.touches[0]?.clientX ?? null;
+  };
+  const handleTouchEnd = (event: React.TouchEvent<HTMLDivElement>) => {
+    const startX = touchStartX.current;
+    const endX = event.changedTouches[0]?.clientX;
+    touchStartX.current = null;
+
+    if (device !== 'mobile' || slides.length <= 1 || startX == null || endX == null) {
+      return;
+    }
+
+    const deltaX = endX - startX;
+    if (Math.abs(deltaX) < 40) {
+      return;
+    }
+
+    if (deltaX < 0) {
+      nextSlide();
+      return;
+    }
+
+    prevSlide();
+  };
 
   const renderSlideWithBlur = (slide: { image: string }, idx: number) => (
     <div className="block w-full h-full relative">
@@ -138,10 +163,14 @@ export const HeroPreview = ({
 
   const renderSliderStyle = () => (
     <section className="relative w-full bg-slate-900 overflow-hidden">
-      <div className={cn(
-        "relative w-full",
-        device === 'mobile' ? 'aspect-[16/9] max-h-[200px]' : (device === 'tablet' ? 'aspect-[16/9] max-h-[250px]' : 'aspect-[21/9] max-h-[280px]')
-      )}>
+      <div
+        className={cn(
+          "relative w-full",
+          device === 'mobile' ? 'aspect-[16/9] max-h-[200px]' : (device === 'tablet' ? 'aspect-[16/9] max-h-[250px]' : 'aspect-[21/9] max-h-[280px]')
+        )}
+        onTouchStart={handleTouchStart}
+        onTouchEnd={handleTouchEnd}
+      >
         {slides.length > 0 ? (
           <>
             {slides.map((slide, idx) => (
@@ -155,30 +184,34 @@ export const HeroPreview = ({
             ))}
             {slides.length > 1 && (
               <>
-                <button
-                  type="button"
-                  onClick={prevSlide}
-                  className="absolute left-2 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full shadow-lg flex items-center justify-center transition-all z-20 border-2 hover:scale-105"
-                  style={{
-                    backgroundColor: sliderColors.navButtonBg,
-                    borderColor: sliderColors.navButtonBorderColor,
-                    boxShadow: `0 0 0 2px ${sliderColors.navButtonOuterRing}`,
-                  }}
-                >
-                  <ChevronLeft size={14} style={{ color: sliderColors.navButtonIconColor }} />
-                </button>
-                <button
-                  type="button"
-                  onClick={nextSlide}
-                  className="absolute right-2 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full shadow-lg flex items-center justify-center transition-all z-20 border-2 hover:scale-105"
-                  style={{
-                    backgroundColor: sliderColors.navButtonBgHover,
-                    borderColor: sliderColors.navButtonBorderColor,
-                    boxShadow: `0 0 0 2px ${sliderColors.navButtonOuterRing}`,
-                  }}
-                >
-                  <ChevronRight size={14} style={{ color: sliderColors.navButtonIconColor }} />
-                </button>
+                {device !== 'mobile' && (
+                  <>
+                    <button
+                      type="button"
+                      onClick={prevSlide}
+                      className="absolute left-2 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full shadow-lg flex items-center justify-center transition-all z-20 border-2 hover:scale-105"
+                      style={{
+                        backgroundColor: sliderColors.navButtonBg,
+                        borderColor: sliderColors.navButtonBorderColor,
+                        boxShadow: `0 0 0 2px ${sliderColors.navButtonOuterRing}`,
+                      }}
+                    >
+                      <ChevronLeft size={14} style={{ color: sliderColors.navButtonIconColor }} />
+                    </button>
+                    <button
+                      type="button"
+                      onClick={nextSlide}
+                      className="absolute right-2 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full shadow-lg flex items-center justify-center transition-all z-20 border-2 hover:scale-105"
+                      style={{
+                        backgroundColor: sliderColors.navButtonBgHover,
+                        borderColor: sliderColors.navButtonBorderColor,
+                        boxShadow: `0 0 0 2px ${sliderColors.navButtonOuterRing}`,
+                      }}
+                    >
+                      <ChevronRight size={14} style={{ color: sliderColors.navButtonIconColor }} />
+                    </button>
+                  </>
+                )}
                 <div className="absolute bottom-2 left-1/2 -translate-x-1/2 flex gap-1.5 z-20">
                   {slides.map((_, idx) => (
                     <button
