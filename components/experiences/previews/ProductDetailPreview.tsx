@@ -406,8 +406,16 @@ export function ProductDetailPreview({
               <div className="space-y-4">
                 {heroStyle === 'split' ? (
                   <div className={`overflow-hidden ${heroContainerClass}`} style={heroContainerStyle}>
-                    <div className="grid md:grid-cols-2 gap-4 items-center p-4 md:p-6">
+                    <div className="grid md:grid-cols-2 gap-3 items-center p-3 md:p-5">
                       <div className="relative aspect-square rounded-xl overflow-hidden" style={{ backgroundColor: tokens.surfaceMuted }}>
+                        {discountPercent > 0 && (
+                          <span
+                            className="absolute left-3 top-3 z-20 inline-flex items-center rounded-full px-2.5 py-1 text-[11px] font-semibold"
+                            style={{ backgroundColor: tokens.discountBadgeBg, color: tokens.discountBadgeText }}
+                          >
+                            -{discountPercent}%
+                          </span>
+                        )}
                         {PREVIEW_IMAGES.length > 0 ? (
                           <BlurredPreviewImage src={PREVIEW_IMAGES[0]} alt={productName} />
                         ) : (
@@ -429,6 +437,14 @@ export function ProductDetailPreview({
                 ) : (
                   <div className={`overflow-hidden ${heroContainerClass}`} style={heroContainerStyle}>
                     <div className={`${heroImageWrapperClass} overflow-hidden`}>
+                      {discountPercent > 0 && (
+                        <span
+                          className="absolute left-3 top-3 z-20 inline-flex items-center rounded-full px-2.5 py-1 text-[11px] font-semibold"
+                          style={{ backgroundColor: tokens.discountBadgeBg, color: tokens.discountBadgeText }}
+                        >
+                          -{discountPercent}%
+                        </span>
+                      )}
                       {PREVIEW_IMAGES.length > 0 ? (
                         <BlurredPreviewImage src={PREVIEW_IMAGES[0]} alt={productName} />
                       ) : (
@@ -439,12 +455,15 @@ export function ProductDetailPreview({
                 )}
 
                 {heroStyle !== 'minimal' && PREVIEW_IMAGES.length > 1 && (
-                  <div className="grid grid-cols-3 gap-3">
-                    {PREVIEW_IMAGES.slice(0, 3).map((img) => (
+                  <div className="flex gap-2 overflow-x-auto pb-1">
+                    {PREVIEW_IMAGES.map((img, index) => (
                       <div
-                        key={img}
-                        className="aspect-square rounded-xl border-2 overflow-hidden"
-                        style={{ backgroundColor: tokens.surfaceMuted, borderColor: tokens.thumbnailBorder }}
+                        key={`${img}-${index}`}
+                        className="aspect-square w-20 shrink-0 rounded-xl border-2 overflow-hidden"
+                        style={{
+                          backgroundColor: tokens.surfaceMuted,
+                          borderColor: index === 0 ? tokens.thumbnailBorderActive : tokens.thumbnailBorder,
+                        }}
                       >
                         <img src={img} alt="" className="h-full w-full object-contain" />
                       </div>
@@ -453,7 +472,7 @@ export function ProductDetailPreview({
                 )}
               </div>
 
-              <div className="space-y-5">
+              <div className="space-y-4">
                 <div className="flex flex-wrap gap-2">
                   <span
                     className="inline-flex items-center rounded-full px-3 py-1 text-xs font-semibold"
@@ -487,24 +506,18 @@ export function ProductDetailPreview({
                   </div>
                 )}
 
-                <div className="space-y-2">
-                  <div className="flex items-baseline gap-3">
+                <div className="space-y-1.5">
+                  <div className="flex items-baseline gap-2.5">
                     <span className="text-3xl font-light" style={{ color: tokens.priceColor }}>{formatVND(price)}</span>
-                    <span className="text-lg line-through" style={{ color: tokens.priceOriginalText }}>{formatVND(originalPrice)}</span>
+                    <span className="text-base line-through" style={{ color: tokens.priceOriginalText }}>{formatVND(originalPrice)}</span>
                   </div>
-                  <span
-                    className="inline-flex items-center rounded-full px-3 py-1 text-xs font-semibold"
-                    style={{ backgroundColor: tokens.discountBadgeBg, color: tokens.discountBadgeText }}
-                  >
-                    Giảm {discountPercent}%
-                  </span>
                 </div>
 
                 {showVariants && <VariantPreview tokens={tokens} />}
 
                 <div className="h-px w-full" style={{ backgroundColor: tokens.divider }} />
 
-                <div className="space-y-2">
+                <div className="space-y-1.5">
                   <label className="text-sm font-medium" style={{ color: tokens.bodyText }}>Số lượng</label>
                   <div className="flex items-center gap-3">
                     <button type="button" className="h-10 w-10 border rounded-full flex items-center justify-center" style={{ borderColor: tokens.quantityBorder }}>
@@ -520,7 +533,7 @@ export function ProductDetailPreview({
                 </div>
 
                 {(showAddToCart || showBuyNow || showWishlist) && (
-                  <div className="space-y-3">
+                  <div className="space-y-2.5">
                     {showAddToCart && (
                       <button className="w-full h-12 text-base font-semibold" style={{ backgroundColor: tokens.ctaPrimaryBg, color: tokens.ctaPrimaryText }}>
                         <ShoppingBag className="w-5 h-5 mr-2 inline-block" />
@@ -543,7 +556,7 @@ export function ProductDetailPreview({
 
                 {showHighlightBlock && renderHighlights()}
 
-                <div className="border rounded-2xl p-5" style={{ borderColor: tokens.border }}>
+                <div className="border rounded-2xl p-4" style={{ borderColor: tokens.border }}>
                   <ExpandablePreviewText
                     text={PREVIEW_DESCRIPTION}
                     className="prose prose-sm max-w-none"

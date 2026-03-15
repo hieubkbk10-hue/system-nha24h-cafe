@@ -1420,13 +1420,21 @@ function ModernStyle({ product, brandColor, tokens, relatedProducts, enabledFiel
         </div>
       </header>
 
-      <main className="max-w-6xl mx-auto px-4 py-8 lg:py-12">
-        <div className="grid lg:grid-cols-2 gap-8 lg:gap-12">
+      <main className="max-w-6xl mx-auto px-4 py-6 lg:py-10">
+        <div className="grid lg:grid-cols-2 gap-6 lg:gap-8">
           <div className="space-y-4">
             {heroStyle === 'split' ? (
               <div className={`overflow-hidden ${heroContainerClass}`} style={heroContainerStyle}>
-                <div className="grid md:grid-cols-2 gap-4 items-center p-4 md:p-6">
+                <div className="grid md:grid-cols-2 gap-3 items-center p-3 md:p-5">
                   <div className="relative aspect-square rounded-xl flex items-center justify-center overflow-hidden" style={{ backgroundColor: tokens.surfaceMuted }}>
+                    {showSalePrice && priceDisplay.comparePrice && discountPercent > 0 && (
+                      <span
+                        className="absolute left-3 top-3 z-10 inline-flex items-center rounded-full px-2.5 py-1 text-[11px] font-semibold"
+                        style={{ backgroundColor: tokens.discountBadgeBg, color: tokens.discountBadgeText }}
+                      >
+                        -{discountPercent}%
+                      </span>
+                    )}
                     {images[selectedImageIndex] ? (
                       <BlurredProductImage
                         src={images[selectedImageIndex]}
@@ -1453,6 +1461,14 @@ function ModernStyle({ product, brandColor, tokens, relatedProducts, enabledFiel
             ) : (
               <div className={`overflow-hidden ${heroContainerClass}`} style={heroContainerStyle}>
                 <div className={heroImageWrapperClass}>
+                  {showSalePrice && priceDisplay.comparePrice && discountPercent > 0 && (
+                    <span
+                      className="absolute left-3 top-3 z-10 inline-flex items-center rounded-full px-2.5 py-1 text-[11px] font-semibold"
+                      style={{ backgroundColor: tokens.discountBadgeBg, color: tokens.discountBadgeText }}
+                    >
+                      -{discountPercent}%
+                    </span>
+                  )}
                   {images[selectedImageIndex] ? (
                     <BlurredProductImage
                       src={images[selectedImageIndex]}
@@ -1470,12 +1486,12 @@ function ModernStyle({ product, brandColor, tokens, relatedProducts, enabledFiel
             )}
 
             {images.length > 1 && heroStyle !== 'minimal' && (
-              <div className="grid grid-cols-3 gap-3">
+              <div className="flex gap-2 overflow-x-auto pb-1">
                 {images.map((image, index) => (
                   <button
                     key={`${image}-${index}`}
                     onClick={() => setSelectedImageIndex(index)}
-                    className="relative aspect-square overflow-hidden rounded-xl border-2 transition-all"
+                    className="relative aspect-square w-20 shrink-0 overflow-hidden rounded-xl border-2 transition-all"
                     style={{ borderColor: selectedImageIndex === index ? tokens.thumbnailBorderActive : tokens.thumbnailBorder }}
                   >
                     <Image src={image} alt={`${product.name} ${index + 1}`} fill className="object-contain" />
@@ -1485,7 +1501,7 @@ function ModernStyle({ product, brandColor, tokens, relatedProducts, enabledFiel
             )}
           </div>
 
-          <div className="space-y-6 lg:space-y-8">
+          <div className="space-y-4 lg:space-y-5">
             <div className="flex flex-wrap gap-2">
               <span
                 className="inline-flex items-center rounded-full px-3 py-1 text-xs font-semibold"
@@ -1507,25 +1523,17 @@ function ModernStyle({ product, brandColor, tokens, relatedProducts, enabledFiel
             {showRating && <RatingInline summary={ratingSummary} tokens={tokens} />}
 
             {showPrice && (
-              <div className="space-y-2">
-                <div className="flex items-baseline gap-3">
+              <div className="space-y-1.5">
+                <div className="flex items-baseline gap-2.5">
                   <span className="text-3xl lg:text-4xl font-light" style={{ color: tokens.priceColor }}>
                     {priceDisplay.label}
                   </span>
                   {showSalePrice && priceDisplay.comparePrice && (
-                    <span className="text-lg line-through" style={{ color: tokens.priceOriginalText }}>
+                    <span className="text-base line-through" style={{ color: tokens.priceOriginalText }}>
                       {formatPrice(priceDisplay.comparePrice)}
                     </span>
                   )}
                 </div>
-                {showSalePrice && priceDisplay.comparePrice && (
-                  <span
-                    className="inline-flex items-center rounded-full px-3 py-1 text-xs font-semibold"
-                    style={{ backgroundColor: tokens.discountBadgeBg, color: tokens.discountBadgeText }}
-                  >
-                    Giảm {discountPercent}%
-                  </span>
-                )}
               </div>
             )}
 
@@ -1541,7 +1549,7 @@ function ModernStyle({ product, brandColor, tokens, relatedProducts, enabledFiel
 
             <div className="h-px w-full" style={{ backgroundColor: tokens.divider }} />
 
-            <div className="space-y-2">
+            <div className="space-y-1.5">
               <label className="text-sm font-medium" style={{ color: tokens.bodyText }}>Số lượng</label>
               <div className="flex items-center gap-3">
                 <button
@@ -1569,7 +1577,7 @@ function ModernStyle({ product, brandColor, tokens, relatedProducts, enabledFiel
             </div>
 
             {(showAddToCart || showBuyNow || showWishlist) && (
-              <div className="space-y-3">
+              <div className="space-y-2.5">
                 {showAddToCart && (
                   <button
                     className={`w-full h-12 text-base font-semibold transition-all ${inStock ? 'hover:shadow-lg hover:scale-[1.01]' : 'opacity-50 cursor-not-allowed'}`}
