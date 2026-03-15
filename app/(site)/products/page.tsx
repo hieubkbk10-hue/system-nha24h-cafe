@@ -201,7 +201,6 @@ function ProductsContent() {
 
   const [searchQuery, setSearchQuery] = useState('');
   const [sortBy, setSortBy] = useState<ProductSortOption>('newest');
-  const [showFilters, setShowFilters] = useState(false);
   const [debouncedSearchQuery, setDebouncedSearchQuery] = useState('');
   const isSearching = searchQuery.trim() !== debouncedSearchQuery.trim();
   const [pageSizeOverride, setPageSizeOverride] = useState<number | null>(null);
@@ -741,12 +740,21 @@ function ProductsContent() {
           {/* Header */}
           <div className="text-center mb-8">
             <h1 className="text-3xl md:text-4xl font-bold" style={{ color: tokens.headingColor }}>Sản phẩm</h1>
-            <p className="mt-2" style={{ color: tokens.subtitleText }}>Khám phá các sản phẩm chất lượng của chúng tôi</p>
           </div>
 
-        {/* Filter Bar */}
+        <MobileProductsFilters
+          categories={categoryOptions}
+          selectedCategory={activeCategory}
+          onCategoryChange={handleCategoryChange}
+          searchQuery={searchQuery}
+          onSearchChange={setSearchQuery}
+          sortBy={sortBy}
+          onSortChange={setSortBy}
+          tokens={tokens}
+        />
+
         <div
-          className="rounded-xl border p-4 mb-8"
+          className="hidden lg:block rounded-xl border p-4 mb-8"
           style={{ backgroundColor: tokens.filterBarBackground, borderColor: tokens.filterBarBorder }}
         >
           <div className="flex flex-col lg:flex-row gap-4">
@@ -797,18 +805,6 @@ function ProductsContent() {
               </div>
             </div>
 
-            <button
-              onClick={() =>{  setShowFilters(!showFilters); }}
-              className="lg:hidden flex items-center justify-center gap-2 px-4 py-2 rounded-lg border"
-              style={{
-                borderColor: tokens.filterButtonBorder,
-                backgroundColor: tokens.filterButtonBg,
-                color: tokens.filterButtonText,
-              }}
-            >
-              <SlidersHorizontal size={18} /> Bộ lọc
-            </button>
-
             <div className="flex items-center gap-2 ml-auto">
               <select
                 value={sortBy}
@@ -828,37 +824,6 @@ function ProductsContent() {
               </select>
             </div>
           </div>
-
-          {showFilters && (
-            <div className="lg:hidden mt-4 pt-4 border-t" style={{ borderColor: tokens.filterBarBorder }}>
-              <p className="text-sm font-medium mb-3" style={{ color: tokens.bodyText }}>Danh mục</p>
-              <div className="flex flex-wrap gap-2">
-                <button
-                  onClick={() =>{  handleCategoryChange(null); }}
-                  className="px-3 py-1.5 rounded-full text-sm font-medium transition-colors border"
-                  style={activeCategory === null
-                    ? { backgroundColor: tokens.filterChipActiveBg, color: tokens.filterChipActiveText, borderColor: tokens.filterChipActiveBorder }
-                    : { backgroundColor: tokens.filterChipBg, color: tokens.filterChipText, borderColor: tokens.filterChipBorder }
-                  }
-                >
-                  Tất cả
-                </button>
-                {categoryOptions.map((cat) => (
-                  <button
-                    key={cat._id}
-                    onClick={() =>{  handleCategoryChange(cat._id); }}
-                    className="px-3 py-1.5 rounded-full text-sm font-medium transition-colors border"
-                    style={activeCategory === cat._id
-                      ? { backgroundColor: tokens.filterChipActiveBg, color: tokens.filterChipActiveText, borderColor: tokens.filterChipActiveBorder }
-                      : { backgroundColor: tokens.filterChipBg, color: tokens.filterChipText, borderColor: tokens.filterChipBorder }
-                    }
-                  >
-                    {cat.name}
-                  </button>
-                ))}
-              </div>
-            </div>
-          )}
         </div>
 
         {/* Results Count */}
@@ -1180,14 +1145,156 @@ interface LayoutProps {
   canUseWishlist: boolean;
 }
 
+interface MobileProductsFiltersProps {
+  categories: { _id: Id<'productCategories'>; name: string; slug: string }[];
+  selectedCategory: Id<'productCategories'> | null;
+  onCategoryChange: (categoryId: Id<'productCategories'> | null) => void;
+  searchQuery: string;
+  onSearchChange: (query: string) => void;
+  sortBy: ProductSortOption;
+  onSortChange: (sort: ProductSortOption) => void;
+  tokens: ProductsListColors;
+}
+
+function MobileProductsFilters({
+  categories,
+  selectedCategory,
+  onCategoryChange,
+  searchQuery,
+  onSearchChange,
+  sortBy,
+  onSortChange,
+  tokens,
+}: MobileProductsFiltersProps) {
+  const [open, setOpen] = useState(false);
+  const hasActiveFilters = Boolean(selectedCategory || searchQuery) || sortBy !== 'newest';
+
+  return (
+    <div className="lg:hidden rounded-xl border p-3 mb-4" style={{ backgroundColor: tokens.filterBarBackground, borderColor: tokens.filterBarBorder }}>
+      <button
+        onClick={() => { setOpen(prev => !prev); }}
+        className="flex w-full items-center justify-between gap-3 rounded-lg border px-3 py-2 text-sm font-medium"
+        style={{
+          borderColor: tokens.filterButtonBorder,
+          backgroundColor: tokens.filterButtonBg,
+          color: tokens.filterButtonText,
+        }}
+        aria-expanded={open}
+        aria-label="Bật tắt bộ lọc sản phẩm"
+      >
+        <span className="flex items-center gap-2">
+          <SlidersHorizontal size={16} />
+          Bộ lọc sản phẩm
+          {hasActiveFilters && (
+            <span className="h-2 w-2 rounded-full" style={{ backgroundColor: tokens.filterChipActiveBg }} />
+          )}
+        </span>
+        <ChevronDown size={16} className={`transition-transform ${open ? 'rotate-180' : ''}`} />
+      </button>
+
+      {open && (
+        <div className="mt-3 space-y-3 border-t pt-3" style={{ borderColor: tokens.filterBarBorder }}>
+          <div className="relative">
+            <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2" style={{ color: tokens.inputIcon }} />
+            <input
+              type="text"
+              placeholder="Tìm kiếm sản phẩm..."
+              value={searchQuery}
+              onChange={(e) => { onSearchChange(e.target.value); }}
+              className="w-full h-10 pl-9 pr-9 rounded-lg border text-sm outline-none placeholder:text-[var(--placeholder-color)]"
+              style={{
+                borderColor: tokens.inputBorder,
+                backgroundColor: tokens.inputBackground,
+                color: tokens.inputText,
+                '--placeholder-color': tokens.inputPlaceholder,
+              } as React.CSSProperties}
+            />
+            {searchQuery && (
+              <button
+                onClick={() => { onSearchChange(''); }}
+                className="absolute right-3 top-1/2 -translate-y-1/2"
+                style={{ color: tokens.inputIcon }}
+                aria-label="Xóa tìm kiếm"
+              >
+                <X size={16} />
+              </button>
+            )}
+          </div>
+
+          <div>
+            <p className="mb-2 text-xs font-medium uppercase tracking-wider" style={{ color: tokens.metaText }}>Danh mục</p>
+            <div className="flex flex-wrap gap-2">
+              <button
+                onClick={() => { onCategoryChange(null); }}
+                className="px-3 py-1.5 rounded-full text-sm font-medium transition-colors border"
+                style={selectedCategory === null
+                  ? { backgroundColor: tokens.filterChipActiveBg, color: tokens.filterChipActiveText, borderColor: tokens.filterChipActiveBorder }
+                  : { backgroundColor: tokens.filterChipBg, color: tokens.filterChipText, borderColor: tokens.filterChipBorder }
+                }
+              >
+                Tất cả
+              </button>
+              {categories.map((cat) => (
+                <button
+                  key={cat._id}
+                  onClick={() => { onCategoryChange(cat._id); }}
+                  className="px-3 py-1.5 rounded-full text-sm font-medium transition-colors border"
+                  style={selectedCategory === cat._id
+                    ? { backgroundColor: tokens.filterChipActiveBg, color: tokens.filterChipActiveText, borderColor: tokens.filterChipActiveBorder }
+                    : { backgroundColor: tokens.filterChipBg, color: tokens.filterChipText, borderColor: tokens.filterChipBorder }
+                  }
+                >
+                  {cat.name}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <div>
+            <label className="mb-2 block text-xs font-medium uppercase tracking-wider" style={{ color: tokens.metaText }}>
+              Sắp xếp
+            </label>
+            <select
+              value={sortBy}
+              onChange={(e) => { onSortChange(e.target.value as ProductSortOption); }}
+              className="w-full h-10 rounded-lg border px-3 text-sm outline-none"
+              style={{
+                borderColor: tokens.inputBorder,
+                backgroundColor: tokens.inputBackground,
+                color: tokens.inputText,
+              }}
+            >
+              <option value="newest">Mới nhất</option>
+              <option value="popular">Bán chạy</option>
+              <option value="price_asc">Giá thấp → cao</option>
+              <option value="price_desc">Giá cao → thấp</option>
+              <option value="name">Tên A-Z</option>
+            </select>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
 function CatalogLayout({ products, categories, selectedCategory, onCategoryChange, searchQuery, onSearchChange, sortBy, onSortChange, tokens, showPrice, showSalePrice, showStock, saleMode, totalCount, paginationNode, showWishlistButton, showAddToCartButton, showBuyNowButton, buyNowLabel, showPromotionBadge, wishlistIdSet, onToggleWishlist, onAddToCart, onBuyNow, canUseWishlist }: LayoutProps) {
   return (
     <div className="py-8 md:py-12 px-4">
       <div className="max-w-7xl mx-auto">
         <div className="text-center mb-8">
           <h1 className="text-3xl md:text-4xl font-bold" style={{ color: tokens.headingColor }}>Sản phẩm</h1>
-          <p className="mt-2" style={{ color: tokens.subtitleText }}>Khám phá các sản phẩm chất lượng của chúng tôi</p>
         </div>
+
+        <MobileProductsFilters
+          categories={categories}
+          selectedCategory={selectedCategory}
+          onCategoryChange={onCategoryChange}
+          searchQuery={searchQuery}
+          onSearchChange={onSearchChange}
+          sortBy={sortBy}
+          onSortChange={onSortChange}
+          tokens={tokens}
+        />
 
         <div className="flex gap-6">
           {/* Sidebar */}
@@ -1353,12 +1460,21 @@ function ListLayout({ products, categories, categoryMap, selectedCategory, onCat
       <div className="max-w-5xl mx-auto">
         <div className="text-center mb-8">
           <h1 className="text-3xl md:text-4xl font-bold" style={{ color: tokens.headingColor }}>Sản phẩm</h1>
-          <p className="mt-2" style={{ color: tokens.subtitleText }}>Khám phá các sản phẩm chất lượng của chúng tôi</p>
         </div>
 
-        {/* Filter Bar */}
+        <MobileProductsFilters
+          categories={categories}
+          selectedCategory={selectedCategory}
+          onCategoryChange={onCategoryChange}
+          searchQuery={searchQuery}
+          onSearchChange={onSearchChange}
+          sortBy={sortBy}
+          onSortChange={onSortChange}
+          tokens={tokens}
+        />
+
         <div
-          className="rounded-xl border p-4 mb-6"
+          className="hidden md:block rounded-xl border p-4 mb-6"
           style={{ backgroundColor: tokens.filterBarBackground, borderColor: tokens.filterBarBorder }}
         >
           <div className="flex flex-col md:flex-row gap-4">
