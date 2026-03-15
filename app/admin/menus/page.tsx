@@ -337,6 +337,10 @@ function MenuItemsEditor({ menuId }: { menuId: Id<"menus"> }) {
   const somePageSelected = paginatedItems.some(item => selectedIds.includes(item.localId));
 
   useEffect(() => {
+    if (totalPages === 0 && currentPage !== 1) {
+      setCurrentPage(1);
+      return;
+    }
     if (totalPages > 0 && currentPage > totalPages) {
       setCurrentPage(totalPages);
     }
