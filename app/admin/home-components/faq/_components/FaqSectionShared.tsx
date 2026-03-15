@@ -39,6 +39,7 @@ export function FaqSectionShared({
 }: FaqSectionSharedProps) {
   const HeadingTag = context === 'site' ? 'h2' : 'h3';
   const sectionTitle = getValue(title) ?? FAQ_FALLBACKS.title;
+  const sectionDescription = getValue(config?.description);
 
   const displayedItems = React.useMemo(
     () => (typeof maxVisible === 'number' ? items.slice(0, maxVisible) : items),
@@ -90,9 +91,9 @@ export function FaqSectionShared({
     if (remainingCount <= 0) {return null;}
 
     return (
-      <div className="flex items-center justify-center pt-2">
+      <div className="flex items-center justify-center pt-3 md:pt-4">
         <span
-          className="inline-flex items-center rounded-full px-3 py-1 text-xs font-medium"
+          className="inline-flex min-h-[32px] items-center rounded-full px-3.5 py-1.5 text-xs font-semibold"
           style={{ backgroundColor: tokens.badgeBg, color: tokens.number }}
         >
           +{remainingCount} câu hỏi khác
@@ -101,13 +102,46 @@ export function FaqSectionShared({
     );
   };
 
+  const renderSectionIntro = (options?: {
+    align?: 'left' | 'center';
+    maxWidthClass?: string;
+    spacingClass?: string;
+    eyebrow?: string;
+    showDescription?: boolean;
+  }) => {
+    const align = options?.align ?? 'center';
+    const maxWidthClass = options?.maxWidthClass ?? 'max-w-3xl';
+    const spacingClass = options?.spacingClass ?? 'mb-8 md:mb-10';
+    const eyebrow = options?.eyebrow ?? 'Hỗ trợ nhanh';
+    const showDescription = options?.showDescription ?? true;
+
+    return (
+      <div className={cn('space-y-3', spacingClass, align === 'center' ? `mx-auto text-center ${maxWidthClass}` : maxWidthClass)}>
+        <div className={cn('flex items-center gap-2', align === 'center' ? 'justify-center' : 'justify-start')}>
+          <span
+            className="inline-flex min-h-[28px] items-center rounded-full px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.18em]"
+            style={{ backgroundColor: tokens.iconBg, color: tokens.iconText }}
+          >
+            {eyebrow}
+          </span>
+        </div>
+        <HeadingTag className="text-2xl font-semibold tracking-tight md:text-3xl" style={{ color: tokens.heading }}>
+          {sectionTitle}
+        </HeadingTag>
+        {showDescription && sectionDescription && (
+          <p className={cn('text-sm leading-7 md:text-base', align === 'center' ? 'mx-auto max-w-2xl' : 'max-w-xl')} style={{ color: tokens.body }}>
+            {sectionDescription}
+          </p>
+        )}
+      </div>
+    );
+  };
+
   if (style === 'accordion') {
     return (
-      <section className="py-10 md:py-14 px-4" style={{ backgroundColor: tokens.sectionBg }}>
-        <div className="max-w-3xl mx-auto">
-          <HeadingTag className="text-2xl md:text-3xl font-bold text-center mb-8 md:mb-10" style={{ color: tokens.heading }}>
-            {sectionTitle}
-          </HeadingTag>
+      <section className="px-4 py-10 md:py-14" style={{ backgroundColor: tokens.sectionBg }}>
+        <div className="mx-auto max-w-4xl">
+          {renderSectionIntro({ eyebrow: 'Câu hỏi phổ biến' })}
 
           <div className="space-y-3" role="region" aria-label={sectionTitle}>
             {displayedItems.map((item, idx) => {
@@ -120,10 +154,10 @@ export function FaqSectionShared({
               return (
                 <div
                   key={item.id}
-                  className="rounded-xl overflow-hidden transition-colors"
+                  className="overflow-hidden rounded-2xl border transition-colors"
                   style={{
                     backgroundColor: tokens.panelBg,
-                    border: `1px solid ${isOpen ? tokens.panelBorderStrong : tokens.panelBorder}`,
+                    borderColor: isOpen ? tokens.panelBorderStrong : tokens.panelBorder,
                   }}
                 >
                   <button
@@ -160,15 +194,15 @@ export function FaqSectionShared({
                       }
                     }}
                     className={cn(
-                      'w-full min-h-[44px] px-4 py-3 md:px-5 md:py-4 text-left flex items-center justify-between gap-3',
+                      'flex w-full min-h-[52px] items-start justify-between gap-3 px-4 py-4 text-left md:px-6',
                       'focus-visible:outline-none focus-visible:ring-2',
                     )}
                     style={{ backgroundColor: isOpen ? tokens.panelBgMuted : tokens.panelBg, color: tokens.questionText }}
                   >
-                    <span className="font-medium">{question}</span>
+                    <span className="pr-3 text-sm font-semibold leading-6 md:text-base">{question}</span>
                     <ChevronDown
                       size={18}
-                      className={cn('flex-shrink-0 transition-transform duration-200', isOpen && 'rotate-180')}
+                      className={cn('mt-1 flex-shrink-0 transition-transform duration-200', isOpen && 'rotate-180')}
                       style={{ color: tokens.chevron }}
                     />
                   </button>
@@ -177,10 +211,10 @@ export function FaqSectionShared({
                     id={panelId}
                     role="region"
                     aria-labelledby={buttonId}
-                    className={cn('overflow-hidden transition-[max-height] duration-200', isOpen ? 'max-h-96' : 'max-h-0')}
+                    className={cn('overflow-hidden transition-[max-height] duration-200', isOpen ? 'max-h-[420px]' : 'max-h-0')}
                   >
                     <div
-                      className="px-4 py-3 md:px-5 md:py-4 text-sm md:text-base leading-relaxed border-t"
+                      className="border-t px-4 py-4 text-sm leading-7 md:px-6 md:text-[15px]"
                       style={{
                         backgroundColor: tokens.panelBgMuted,
                         borderColor: tokens.panelBorder,
@@ -203,39 +237,39 @@ export function FaqSectionShared({
 
   if (style === 'cards') {
     return (
-      <section className="py-10 md:py-14 px-4" style={{ backgroundColor: tokens.sectionBg }}>
-        <div className="max-w-5xl mx-auto">
-          <HeadingTag className="text-2xl md:text-3xl font-bold text-center mb-8 md:mb-10" style={{ color: tokens.heading }}>
-            {sectionTitle}
-          </HeadingTag>
+      <section className="px-4 py-10 md:py-14" style={{ backgroundColor: tokens.sectionBg }}>
+        <div className="mx-auto max-w-6xl">
+          {renderSectionIntro({ eyebrow: 'Knowledge base', maxWidthClass: 'max-w-3xl' })}
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-5">
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-2 md:gap-5 lg:grid-cols-3">
             {displayedItems.map((item, idx) => (
-              <div
+              <article
                 key={item.id}
-                className="rounded-xl border p-4 md:p-5"
+                className="rounded-2xl border p-5 md:p-6"
                 style={{
                   backgroundColor: tokens.panelBg,
                   borderColor: tokens.panelBorder,
                 }}
               >
-                <div className="flex items-start gap-3">
+                <div className="mb-4 flex items-center gap-3">
                   <div
-                    className="w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 text-sm font-bold"
+                    className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-xl text-sm font-bold"
                     style={{ backgroundColor: tokens.iconBg, color: tokens.iconText }}
                   >
-                    ?
+                    {String(idx + 1).padStart(2, '0')}
                   </div>
-                  <div className="space-y-2 min-w-0">
-                    <h4 className="font-semibold" style={{ color: tokens.panelTitleText }}>
-                      {getValue(item.question) ?? `${FAQ_FALLBACKS.question} ${idx + 1}`}
-                    </h4>
-                    <p className="text-sm leading-relaxed" style={{ color: tokens.body }}>
-                      {getValue(item.answer) ?? FAQ_FALLBACKS.answer}
-                    </p>
-                  </div>
+                  <span className="text-xs font-semibold uppercase tracking-[0.14em]" style={{ color: tokens.number }}>
+                    FAQ
+                  </span>
                 </div>
-              </div>
+
+                <h4 className="mb-2 text-sm font-semibold leading-6 md:text-base" style={{ color: tokens.panelTitleText }}>
+                  {getValue(item.question) ?? `${FAQ_FALLBACKS.question} ${idx + 1}`}
+                </h4>
+                <p className="text-sm leading-7" style={{ color: tokens.body }}>
+                  {getValue(item.answer) ?? FAQ_FALLBACKS.answer}
+                </p>
+              </article>
             ))}
           </div>
 
@@ -251,45 +285,73 @@ export function FaqSectionShared({
     const buttonLink = getValue(config?.buttonLink) ?? '#';
 
     return (
-      <section className="py-10 md:py-14 px-4" style={{ backgroundColor: tokens.sectionBg }}>
-        <div className="max-w-5xl mx-auto grid grid-cols-1 md:grid-cols-5 gap-8 md:gap-10">
+      <section className="px-4 py-10 md:py-14" style={{ backgroundColor: tokens.sectionBg }}>
+        <div className="mx-auto grid max-w-6xl grid-cols-1 gap-6 md:grid-cols-5 md:gap-8">
           <div className="md:col-span-2">
-            <HeadingTag className="text-2xl md:text-3xl font-bold mb-4" style={{ color: tokens.heading }}>
-              {sectionTitle}
-            </HeadingTag>
-            <p className="leading-relaxed mb-6" style={{ color: tokens.body }}>
-              {description}
-            </p>
+            <div
+              className="rounded-3xl border p-6 md:sticky md:top-6 md:p-7"
+              style={{
+                backgroundColor: tokens.panelBgMuted,
+                borderColor: tokens.panelBorder,
+              }}
+            >
+              {renderSectionIntro({ align: 'left', maxWidthClass: 'max-w-none', spacingClass: 'mb-5', eyebrow: 'Trung tâm trợ giúp', showDescription: false })}
 
-            {buttonText && (
-              <a
-                href={buttonLink}
-                className="inline-flex min-h-[44px] items-center rounded-lg px-5 py-2.5 text-sm font-semibold"
-                style={{
-                  backgroundColor: tokens.ctaBg,
-                  color: tokens.ctaText,
-                  boxShadow: tokens.ctaShadow,
-                }}
-              >
-                {buttonText}
-              </a>
-            )}
+              <div className="space-y-4">
+                <div className="rounded-2xl border px-4 py-3" style={{ backgroundColor: tokens.panelBg, borderColor: tokens.panelBorder }}>
+                  <p className="text-xs font-semibold uppercase tracking-[0.14em]" style={{ color: tokens.number }}>
+                    Mô tả
+                  </p>
+                  <p className="mt-2 text-sm leading-7" style={{ color: tokens.body }}>
+                    {description}
+                  </p>
+                </div>
+
+                {buttonText && (
+                  <a
+                    href={buttonLink}
+                    className="inline-flex min-h-[44px] w-full items-center justify-center rounded-xl px-5 py-3 text-sm font-semibold"
+                    style={{
+                      backgroundColor: tokens.ctaBg,
+                      color: tokens.ctaText,
+                      boxShadow: tokens.ctaShadow,
+                    }}
+                  >
+                    {buttonText}
+                  </a>
+                )}
+              </div>
+            </div>
           </div>
 
-          <div className="md:col-span-3 space-y-4 md:space-y-5">
+          <div className="space-y-3 md:col-span-3">
             {displayedItems.map((item, idx) => (
-              <div
+              <article
                 key={item.id}
-                className="pb-4 border-b"
-                style={{ borderColor: tokens.panelBorder }}
+                className="rounded-2xl border p-5 md:p-6"
+                style={{
+                  backgroundColor: tokens.panelBg,
+                  borderColor: tokens.panelBorder,
+                }}
               >
-                <h4 className="font-semibold mb-2" style={{ color: tokens.panelTitleText }}>
+                <div className="mb-3 flex items-center gap-3">
+                  <span
+                    className="inline-flex h-8 min-w-[32px] items-center justify-center rounded-full px-2 text-xs font-semibold"
+                    style={{ backgroundColor: tokens.iconBg, color: tokens.iconText }}
+                  >
+                    {idx + 1}
+                  </span>
+                  <span className="text-xs font-semibold uppercase tracking-[0.14em]" style={{ color: tokens.number }}>
+                    Hỏi đáp nhanh
+                  </span>
+                </div>
+                <h4 className="mb-2 text-sm font-semibold leading-6 md:text-base" style={{ color: tokens.panelTitleText }}>
                   {getValue(item.question) ?? `${FAQ_FALLBACKS.question} ${idx + 1}`}
                 </h4>
-                <p className="text-sm leading-relaxed" style={{ color: tokens.body }}>
+                <p className="text-sm leading-7" style={{ color: tokens.body }}>
                   {getValue(item.answer) ?? FAQ_FALLBACKS.answer}
                 </p>
-              </div>
+              </article>
             ))}
 
             {renderRemainingBadge()}
@@ -301,23 +363,21 @@ export function FaqSectionShared({
 
   if (style === 'minimal') {
     return (
-      <section className="py-10 md:py-14 px-4" style={{ backgroundColor: tokens.sectionBg }}>
-        <div className="max-w-3xl mx-auto">
-          <HeadingTag className="text-2xl md:text-3xl font-bold mb-8 md:mb-10" style={{ color: tokens.heading }}>
-            {sectionTitle}
-          </HeadingTag>
+      <section className="px-4 py-10 md:py-14" style={{ backgroundColor: tokens.sectionBg }}>
+        <div className="mx-auto max-w-4xl">
+          {renderSectionIntro({ align: 'left', eyebrow: 'Cần biết trước khi mua' })}
 
-          <div className="space-y-6 md:space-y-7">
+          <div className="divide-y" style={{ borderColor: tokens.panelBorder }}>
             {displayedItems.map((item, idx) => (
-              <div key={item.id} className="flex gap-4 md:gap-5">
-                <span className="text-xl md:text-2xl font-bold flex-shrink-0" style={{ color: tokens.number }}>
+              <div key={item.id} className="grid grid-cols-[56px,1fr] gap-3 py-5 md:grid-cols-[72px,1fr] md:gap-5 md:py-6">
+                <span className="text-2xl font-semibold tracking-tight md:text-3xl" style={{ color: tokens.number }}>
                   {String(idx + 1).padStart(2, '0')}
                 </span>
                 <div className="space-y-2">
-                  <h4 className="font-semibold" style={{ color: tokens.panelTitleText }}>
+                  <h4 className="text-sm font-semibold leading-6 md:text-base" style={{ color: tokens.panelTitleText }}>
                     {getValue(item.question) ?? `${FAQ_FALLBACKS.question} ${idx + 1}`}
                   </h4>
-                  <p className="text-sm md:text-base leading-relaxed" style={{ color: tokens.body }}>
+                  <p className="text-sm leading-7 md:text-[15px]" style={{ color: tokens.body }}>
                     {getValue(item.answer) ?? FAQ_FALLBACKS.answer}
                   </p>
                 </div>
@@ -333,40 +393,44 @@ export function FaqSectionShared({
 
   if (style === 'timeline') {
     return (
-      <section className="py-10 md:py-14 px-4" style={{ backgroundColor: tokens.sectionBg }}>
-        <div className="max-w-3xl mx-auto">
-          <HeadingTag className="text-2xl md:text-3xl font-bold text-center mb-8 md:mb-10" style={{ color: tokens.heading }}>
-            {sectionTitle}
-          </HeadingTag>
+      <section className="px-4 py-10 md:py-14" style={{ backgroundColor: tokens.sectionBg }}>
+        <div className="mx-auto max-w-4xl">
+          {renderSectionIntro({ eyebrow: 'Quy trình hỗ trợ' })}
 
           <div className="relative">
-            <div className="absolute left-4 top-0 bottom-0 w-0.5" style={{ backgroundColor: tokens.timelineLine }} />
+            <div className="absolute bottom-0 left-5 top-0 w-px md:left-6" style={{ backgroundColor: tokens.timelineLine }} />
 
-            <div className="space-y-5 md:space-y-6">
+            <div className="space-y-4 md:space-y-5">
               {displayedItems.map((item, idx) => (
-                <div key={item.id} className="relative pl-12 md:pl-14">
+                <div key={item.id} className="relative pl-14 md:pl-16">
                   <div
-                    className="absolute left-2.5 top-2 w-4 h-4 rounded-full border-4"
+                    className="absolute left-0 top-1 flex h-10 w-10 items-center justify-center rounded-full border text-xs font-semibold md:left-1 md:h-11 md:w-11"
                     style={{
                       backgroundColor: tokens.timelineDotBg,
                       borderColor: tokens.timelineDotBorder,
+                      color: tokens.iconText,
                     }}
-                  />
+                  >
+                    {String(idx + 1).padStart(2, '0')}
+                  </div>
 
-                  <div
-                    className="rounded-xl border p-4 md:p-5"
+                  <article
+                    className="rounded-2xl border p-5 md:p-6"
                     style={{
                       backgroundColor: tokens.panelBgMuted,
                       borderColor: tokens.panelBorder,
                     }}
                   >
-                    <h4 className="font-semibold mb-2" style={{ color: tokens.panelTitleText }}>
+                    <p className="mb-2 text-xs font-semibold uppercase tracking-[0.14em]" style={{ color: tokens.number }}>
+                      Bước hỗ trợ {idx + 1}
+                    </p>
+                    <h4 className="mb-2 text-sm font-semibold leading-6 md:text-base" style={{ color: tokens.panelTitleText }}>
                       {getValue(item.question) ?? `${FAQ_FALLBACKS.question} ${idx + 1}`}
                     </h4>
-                    <p className="text-sm leading-relaxed" style={{ color: tokens.body }}>
+                    <p className="text-sm leading-7" style={{ color: tokens.body }}>
                       {getValue(item.answer) ?? FAQ_FALLBACKS.answer}
                     </p>
-                  </div>
+                  </article>
                 </div>
               ))}
             </div>
@@ -394,15 +458,14 @@ export function FaqSectionShared({
   }
 
   return (
-    <section className="py-10 md:py-14 px-4" style={{ backgroundColor: tokens.sectionBg }}>
-      <div className="max-w-4xl mx-auto">
-        <HeadingTag className="text-2xl md:text-3xl font-bold text-center mb-6 md:mb-8" style={{ color: tokens.heading }}>
-          {sectionTitle}
-        </HeadingTag>
+    <section className="px-4 py-10 md:py-14" style={{ backgroundColor: tokens.sectionBg }}>
+      <div className="mx-auto max-w-5xl">
+        {renderSectionIntro({ eyebrow: 'Theo chủ đề', maxWidthClass: 'max-w-3xl' })}
 
-        <div className="flex gap-2 mb-5 overflow-x-auto pb-2" role="tablist" aria-label={sectionTitle}>
-          {tabItems.map((_, idx) => {
+        <div className="mb-5 flex gap-2 overflow-x-auto pb-2" role="tablist" aria-label={sectionTitle}>
+          {tabItems.map((item, idx) => {
             const isActive = activeTab === idx;
+            const tabLabel = getValue(item.question) ?? `${FAQ_FALLBACKS.question} ${idx + 1}`;
             return (
               <button
                 key={`${tabPrefix}-tab-${idx}`}
@@ -434,7 +497,7 @@ export function FaqSectionShared({
                     setActiveTab(tabItems.length - 1);
                   }
                 }}
-                className="min-h-[44px] rounded-full px-4 py-2 text-sm font-medium whitespace-nowrap border"
+                className="min-h-[44px] rounded-full border px-4 py-2 text-sm font-medium whitespace-nowrap"
                 style={
                   isActive
                     ? {
@@ -449,13 +512,13 @@ export function FaqSectionShared({
                     }
                 }
               >
-                Q{idx + 1}
+                {tabLabel}
               </button>
             );
           })}
 
           {displayedItems.length > 6 && (
-            <span className="px-3 py-2 text-sm flex items-center" style={{ color: tokens.tabOverflowText }}>+{displayedItems.length - 6}</span>
+            <span className="flex items-center px-3 py-2 text-sm" style={{ color: tokens.tabOverflowText }}>+{displayedItems.length - 6}</span>
           )}
         </div>
 
@@ -464,16 +527,27 @@ export function FaqSectionShared({
             id={`${tabPrefix}-panel-${activeTab}`}
             role="tabpanel"
             aria-labelledby={`${tabPrefix}-tab-${activeTab}`}
-            className="rounded-xl border p-5 md:p-6"
+            className="rounded-3xl border p-6 md:p-8"
             style={{
               backgroundColor: tokens.panelBg,
               borderColor: tokens.panelBorder,
             }}
           >
-            <h4 className="text-lg md:text-xl font-semibold mb-3" style={{ color: tokens.panelTitleText }}>
+            <div className="mb-4 flex items-center gap-3">
+              <span
+                className="inline-flex h-9 min-w-[36px] items-center justify-center rounded-full px-2 text-xs font-semibold"
+                style={{ backgroundColor: tokens.iconBg, color: tokens.iconText }}
+              >
+                {activeTab + 1}
+              </span>
+              <span className="text-xs font-semibold uppercase tracking-[0.14em]" style={{ color: tokens.number }}>
+                Chủ đề nổi bật
+              </span>
+            </div>
+            <h4 className="mb-3 text-lg font-semibold leading-8 md:text-[22px]" style={{ color: tokens.panelTitleText }}>
               {getValue(tabItems[activeTab].question) ?? `${FAQ_FALLBACKS.question} ${activeTab + 1}`}
             </h4>
-            <p className="leading-relaxed" style={{ color: tokens.body }}>
+            <p className="text-sm leading-7 md:text-base" style={{ color: tokens.body }}>
               {getValue(tabItems[activeTab].answer) ?? FAQ_FALLBACKS.answer}
             </p>
           </div>
